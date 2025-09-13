@@ -1,5 +1,5 @@
 # HLPT-Lab2-
 Запуск компилятора:
-kotlinc app.kt -cp "kotlin-stdlib.jar;kotlinx-cli-jvm-0.3.6.jar" -d app.jar
+kotlinc app.kt -cp "kotlinx-cli-jvm-0.3.6.jar" -d app.jar
 Запуск файла:
-java -cp "app.jar;kotlinx-cli-jvm-0.3.6.jar;kotlin-reflect-1.7.10.jar" AppKt --login user --password pass
+java -cp "app.jar;libs/*" AppKt --login user --password pass --action read --resource A.B.C --volume 10

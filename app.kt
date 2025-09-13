@@ -15,6 +15,25 @@ fun main(args: Array<String>) {
         description = "User password"
     ).required()
 
+    val action by parser.option(
+        ArgType.String,
+        fullName = "action",
+        description = "Type of action wtih file"
+    ).required()
+
+    val resource by parser.option(
+        ArgType.String,
+        fullName = "resource",
+        description = "Path to resource"
+    ).required()
+
+    val volume by parser.option(
+        ArgType.String,
+        fullName = "volume",
+        description = "Volume of file"
+    ).required()
+
+
     parser.parse(args)
 
     println("Login: $login")
