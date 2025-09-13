@@ -1,7 +1,13 @@
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
+import kotlin.system.exitProcess
 
+data class UserData(val salt: String, val hash: String)
+val users = mapOf(
+    "alice" to UserData(salt = "saltAlice", hash = "No hash?"), 
+    "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
+)
 fun main(args: Array<String>) {
     val parser = ArgParser("app")
 
@@ -36,11 +42,27 @@ fun main(args: Array<String>) {
     ).required()
 
     parser.parse(args)
-    val salt = "i hate my life"
-    val hashedPassword = hash(password, salt)
+    val user = users[login]
+    if (user == null) {
+        println("User not found")
+        exitProcess(2)
+    }
+    // val hashedPassword = hash(password, user.salt)
+    // println("Password: $hashedPassword")
+    if (hash(password, user.salt) != user.hash) {
+        
+        println("Invalid password")
+        exitProcess(2)
+    }
+
+    if (volume.toInt() > 10) {
+        println("Requested volume $volume exceeds maximum allowed for resource $resource")
+        exitProcess(4)
+    }
     println("Login: $login")
     println("Password: $password")
-     println("Password: $hashedPassword")
+    
+    exitProcess(0)
 }
 
 
