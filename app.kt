@@ -1,4 +1,6 @@
 import kotlinx.cli.*
+import java.security.MessageDigest
+import java.nio.charset.StandardCharsets
 
 fun main(args: Array<String>) {
     val parser = ArgParser("app")
@@ -33,10 +35,28 @@ fun main(args: Array<String>) {
         description = "Volume of file"
     ).required()
 
-
     parser.parse(args)
-
+    val salt = "i hate my life"
+    val hashedPassword = hash(password, salt)
     println("Login: $login")
     println("Password: $password")
+     println("Password: $hashedPassword")
 }
 
+
+fun hash(password: String, salt: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val combined = salt + password
+    val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
+    return bytesToHex(hashBytes)
+}
+
+fun bytesToHex(hash: ByteArray): String {
+    val hexString = StringBuilder(2 * hash.size)
+    for (byte in hash) {
+        val hex = Integer.toHexString(0xff and byte.toInt())
+        if (hex.length == 1) hexString.append('0')
+        hexString.append(hex)
+    }
+    return hexString.toString()
+}
