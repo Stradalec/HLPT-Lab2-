@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
 data class UserData(val salt: String, val hash: String)
+data class UserFiles
 val users = mapOf(
     "alice" to UserData(salt = "saltAlice", hash = "No hash?"), 
     "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
@@ -47,8 +48,8 @@ fun main(args: Array<String>) {
         println("User not found")
         exitProcess(2)
     }
-    // val hashedPassword = hash(password, user.salt)
-    // println("Password: $hashedPassword")
+    //val hashedPassword = hash(password, user.salt) Этот код выводит hash, чтобы не хранить его в открытом доступе
+    //println("Password: $hashedPassword") . Можно переназначить соль, получить новый хэш и внести для пользователя 
     if (hash(password, user.salt) != user.hash) {
         
         println("Invalid password")
@@ -57,10 +58,8 @@ fun main(args: Array<String>) {
 
     if (volume.toInt() > 10) {
         println("Requested volume $volume exceeds maximum allowed for resource $resource")
-        exitProcess(4)
+        exitProcess(8)
     }
-    println("Login: $login")
-    println("Password: $password")
     
     exitProcess(0)
 }
