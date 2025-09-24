@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
 data class UserData(val salt: String, val hash: String)
-data class UserFiles
 val users = mapOf(
     "alice" to UserData(salt = "saltAlice", hash = "No hash?"), 
     "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
