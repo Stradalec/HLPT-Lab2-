@@ -3,45 +3,68 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
+enum class Action { READ, WRITE, EXECUTE }
+// salo
 data class UserData(val salt: String, val hash: String)
 val users = mapOf(
     "alice" to UserData(salt = "saltAlice", hash = "No hash?"), 
     "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
 )
+
+// класс ресурса. нечто вроде имитации файловой структуры в проводнике на компе.
+// по заданию принимает имя, размер.
+// имеет батьку для реализации иерархии.
+// по сути представляет собой дерево. методы для поиска и получения дочерних узлов "папочек".
+class Resource(
+    val name: String,
+    val maxVolume: Int = 10,
+    val parent: Resource? = null
+) {
+    private val children = mutableMapOf<String, Resource>()
+    private val permissions = mutableMapOf<String, MutableSet<Action>>() // login -> actions
+
+    fun addChild(resource: Resource) {
+        children[resource.name] = resource
+    }
+
+    fun getChild(name: String): Resource? = children[name]
+
+    fun findByPath(path: String): Resource? {
+        val parts = path.split(".")
+        var current: Resource? = this
+        for (part in parts) {
+            current = current?.getChild(part) ?: return null
+        }
+        return current
+    }
+
+    fun grantPermission(user: String, action: Action) {
+        permissions.computeIfAbsent(user) { mutableSetOf() }.add(action)
+    }
+
+    fun hasPermission(user: String, action: Action): Boolean {
+        return permissions[user]?.contains(action)
+            ?: parent?.hasPermission(user, action)
+            ?: false
+    }
+}
+
 fun main(args: Array<String>) {
     val parser = ArgParser("app")
 
-    val login by parser.option(
-        ArgType.String,
-        fullName = "login",
-        description = "User login"
-    ).required()
+    val login by parser.option(ArgType.String, fullName = "login", description = "User login").required()
+    val password by parser.option(ArgType.String, fullName = "password", description = "User password" ).required()
+    val action by parser.option(ArgType.String, fullName = "action", description = "Type of action wtih file").required()
+    val resource by parser.option(ArgType.String, fullName = "resource", description = "Path to resource").required()
+    val volume by parser.option(ArgType.String, fullName = "volume", description = "Volume of file").required()
 
-    val password by parser.option(
-        ArgType.String,
-        fullName = "password",
-        description = "User password"
-    ).required()
+    try {
+        parser.parse(args)
+    } catch (e: Exception) {
+        parser.printHelp()
+        exitProcess(1)
+    }
 
-    val action by parser.option(
-        ArgType.String,
-        fullName = "action",
-        description = "Type of action wtih file"
-    ).required()
-
-    val resource by parser.option(
-        ArgType.String,
-        fullName = "resource",
-        description = "Path to resource"
-    ).required()
-
-    val volume by parser.option(
-        ArgType.String,
-        fullName = "volume",
-        description = "Volume of file"
-    ).required()
-
-    parser.parse(args)
     val user = users[login]
     if (user == null) {
         println("User not found")
@@ -53,6 +76,40 @@ fun main(args: Array<String>) {
         
         println("Invalid password")
         exitProcess(2)
+    }
+
+    val root = Resource("root", 100)
+    val folderA = Resource("A", 50, root)
+    val folderB = Resource("B", 20, folderA)
+    val fileC = Resource("C", 10, folderB)
+
+    root.addChild(folderA)
+    folderA.addChild(folderB)
+    folderB.addChild(fileC)
+
+    folderA.grantPermission("alice", Action.READ)
+    folderB.grantPermission("alice", Action.WRITE)
+    fileC.grantPermission("stradalets", Action.EXECUTE)
+
+    val target = root.findByPath(resource)
+    if (target == null) {
+        println("Resource not found")
+        exitProcess(3)
+    }
+
+    val act = when (action.lowercase()) {
+        "read" -> Action.READ
+        "write" -> Action.WRITE
+        "execute" -> Action.EXECUTE
+        else -> {
+            println("Unknown action")
+            exitProcess(4)
+        }
+    }
+
+    if (!target.hasPermission(login, act)) {
+        println("Access denied for $login to perform $action on $resource")
+        exitProcess(5)
     }
 
     if (volume.toInt() > 10) {
