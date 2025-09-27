@@ -7,7 +7,7 @@ enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
 val users = mapOf(
-    "alice" to UserData(salt = "saltAlice", hash = "No hash?"), 
+    "alice" to UserData(salt = "saltAlice", hash = "0ded4a676ee2fcd61ab5772e67ac33ef2ada6a929470cac9cb703cc9e6315c85"), 
     "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
 )
 
@@ -43,10 +43,14 @@ class Resource(
     }
 
     fun hasPermission(user: String, action: Action): Boolean {
-        return permissions[user]?.contains(action)
-            ?: parent?.hasPermission(user, action)
-            ?: false
+    val userActions = permissions[user]
+    return if (userActions != null) {
+        if (action in userActions) true else parent?.hasPermission(user, action) ?: false
+    } else {
+        parent?.hasPermission(user, action) ?: false
     }
+}
+
 }
 
 fun main(args: Array<String>) {
@@ -61,7 +65,6 @@ fun main(args: Array<String>) {
     try {
         parser.parse(args)
     } catch (e: Exception) {
-        parser.printHelp()
         exitProcess(1)
     }
 
@@ -70,11 +73,11 @@ fun main(args: Array<String>) {
         println("User not found")
         exitProcess(2)
     }
-    //val hashedPassword = hash(password, user.salt) Этот код выводит hash, чтобы не хранить его в открытом доступе
-    //println("Password: $hashedPassword") . Можно переназначить соль, получить новый хэш и внести для пользователя 
+    val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
+    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
     if (hash(password, user.salt) != user.hash) {
         
-        println("Invalid password")
+        println("Invalid password") 
         exitProcess(2)
     }
 
@@ -89,7 +92,7 @@ fun main(args: Array<String>) {
 
     folderA.grantPermission("alice", Action.READ)
     folderB.grantPermission("alice", Action.WRITE)
-    fileC.grantPermission("stradalets", Action.EXECUTE)
+    fileC.grantPermission("alice", Action.EXECUTE)
 
     val target = root.findByPath(resource)
     if (target == null) {
@@ -116,7 +119,7 @@ fun main(args: Array<String>) {
         println("Requested volume $volume exceeds maximum allowed for resource $resource")
         exitProcess(8)
     }
-    
+    println("finally, there is some working time")
     exitProcess(0)
 }
 
