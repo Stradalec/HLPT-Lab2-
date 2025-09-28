@@ -54,6 +54,9 @@ class Resource(
 }
 
 fun main(args: Array<String>) {
+    if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
+        exitProcess(1)
+    }
     val parser = ArgParser("app")
 
     val login by parser.option(ArgType.String, fullName = "login", description = "User login").required()
@@ -61,7 +64,6 @@ fun main(args: Array<String>) {
     val action by parser.option(ArgType.String, fullName = "action", description = "Type of action wtih file").required()
     val resource by parser.option(ArgType.String, fullName = "resource", description = "Path to resource").required()
     val volume by parser.option(ArgType.String, fullName = "volume", description = "Volume of file").required()
-
     try {
         parser.parse(args)
     } catch (e: Exception) {
@@ -70,14 +72,12 @@ fun main(args: Array<String>) {
 
     val user = users[login]
     if (user == null) {
-        println("User not found")
-        exitProcess(2)
+        exitProcess(3)
     }
     val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
     //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
     if (hash(password, user.salt) != user.hash) {
         
-        println("Invalid password") 
         exitProcess(2)
     }
 
@@ -85,42 +85,41 @@ fun main(args: Array<String>) {
     val folderA = Resource("A", 50, root)
     val folderB = Resource("B", 20, folderA)
     val fileC = Resource("C", 10, folderB)
+    val fileD =  Resource("D", 10, root)
 
     root.addChild(folderA)
+    root.addChild(fileD)
     folderA.addChild(folderB)
     folderB.addChild(fileC)
 
     folderA.grantPermission("alice", Action.READ)
     folderB.grantPermission("alice", Action.WRITE)
     fileC.grantPermission("alice", Action.EXECUTE)
-
-    val target = root.findByPath(resource)
-    if (target == null) {
-        println("Resource not found")
-        exitProcess(3)
+        if(volume.toIntOrNull() == null){
+        exitProcess(7)
     }
-
+    val target = root.findByPath(resource)
     val act = when (action.lowercase()) {
         "read" -> Action.READ
         "write" -> Action.WRITE
         "execute" -> Action.EXECUTE
         else -> {
-            println("Unknown action")
             exitProcess(4)
         }
     }
-
+    if (target == null) {
+        exitProcess(6)
+    }
     if (!target.hasPermission(login, act)) {
-        println("Access denied for $login to perform $action on $resource")
         exitProcess(5)
     }
+    
 
     if (volume.toInt() > 10) {
-        println("Requested volume $volume exceeds maximum allowed for resource $resource")
         exitProcess(8)
     }
-    println("finally, there is some working time")
     exitProcess(0)
+    
 }
 
 
