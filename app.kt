@@ -3,6 +3,18 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
+enum class ExitCode(val code: Int) {
+    SUCCESS(0),
+    HELP(1),
+    ERROR_WRONG_PASSWORD(2),
+    ERROR_UNKNOWN_USER(3),
+    ERROR_INVALID_ACTION(4),
+    ERROR_NO_PERMISSION(5),
+    ERROR_RESOURCE_NOT_FOUND(6),
+    ERROR_INVALID_VOLUME_FORMAT(7),
+    ERROR_EXCEED_MAX_VOLUME(8)
+}
+
 enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
@@ -55,7 +67,7 @@ class Resource(
 
 fun main(args: Array<String>) {
     if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
-        exitProcess(1)
+        exitProcess(ExitCode.HELP.code)
     }
     val parser = ArgParser("app")
 
@@ -67,18 +79,18 @@ fun main(args: Array<String>) {
     try {
         parser.parse(args)
     } catch (e: Exception) {
-        exitProcess(1)
+        exitProcess(ExitCode.HELP.code)
     }
 
     val user = users[login]
     if (user == null) {
-        exitProcess(3)
+        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
     }
     val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
     //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
     if (hash(password, user.salt) != user.hash) {
         
-        exitProcess(2)
+        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
     }
 
     val root = Resource("root", 100)
@@ -96,7 +108,7 @@ fun main(args: Array<String>) {
     folderB.grantPermission("alice", Action.WRITE)
     fileC.grantPermission("alice", Action.EXECUTE)
         if(volume.toIntOrNull() == null){
-        exitProcess(7)
+        exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
     }
     val target = root.findByPath(resource)
     val act = when (action.lowercase()) {
@@ -104,21 +116,21 @@ fun main(args: Array<String>) {
         "write" -> Action.WRITE
         "execute" -> Action.EXECUTE
         else -> {
-            exitProcess(4)
+            exitProcess(ExitCode.ERROR_INVALID_ACTION.code)
         }
     }
     if (target == null) {
-        exitProcess(6)
+        exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
     }
     if (!target.hasPermission(login, act)) {
-        exitProcess(5)
+        exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
     }
     
 
     if (volume.toInt() > 10) {
-        exitProcess(8)
+        exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
     }
-    exitProcess(0)
+    exitProcess(ExitCode.SUCCESS.code)
     
 }
 
