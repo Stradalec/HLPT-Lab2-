@@ -46,18 +46,6 @@ class Resource(
         return current
     }
 
-    fun grantPermission(user: String, action: Action) {
-        permissions.computeIfAbsent(user) { mutableSetOf() }.add(action)
-    }
-
-    fun hasPermission(user: String, action: Action): Boolean {
-    val userActions = permissions[user]
-    return if (userActions != null) {
-        if (action in userActions) true else parent?.hasPermission(user, action) ?: false
-    } else {
-        parent?.hasPermission(user, action) ?: false
-    }
-}
 
 }
 
@@ -96,10 +84,15 @@ fun main(args: Array<String>) {
     if (target == null) {
         exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
     }
-    if (!target.hasPermission(login, act)) {
+    val permissionManager = PermissionManager()
+    permissionManager.grantPermission("A", "alice", Action.READ)
+    permissionManager.grantPermission("B", "alice", Action.WRITE)
+    permissionManager.grantPermission("C", "alice", Action.EXECUTE)
+
+    if (!permissionManager.hasPermission(target, login, act)) {
         exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
     }
-    
+
 
     if (volume.toInt() > 10) {
         exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
@@ -137,9 +130,6 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
     root.addChild(fileD)
     folderA.addChild(folderB)
     folderB.addChild(fileC)
-    folderA.grantPermission("alice", Action.READ)
-    folderB.grantPermission("alice", Action.WRITE)
-    fileC.grantPermission("alice", Action.EXECUTE)
     return users to root
 }
 
@@ -160,3 +150,24 @@ fun bytesToHex(hash: ByteArray): String {
     }
     return hexString.toString()
 }
+
+class PermissionManager {
+    private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
+
+    fun grantPermission(resourceName: String, user: String, action: Action) {
+        val userPerms = permissions.computeIfAbsent(resourceName) { mutableMapOf() }
+        val actions = userPerms.computeIfAbsent(user) { mutableSetOf() }
+        actions.add(action)
+    }
+
+    fun hasPermission(resource: Resource?, user: String, action: Action): Boolean {
+        if (resource == null) return false
+        val userActions = permissions[resource.name]?.get(user)
+        return if (userActions != null && action in userActions) {
+            true
+        } else {
+            hasPermission(resource.parent, user, action)
+        }
+    }
+}
+
