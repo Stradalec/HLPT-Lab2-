@@ -18,10 +18,6 @@ enum class ExitCode(val code: Int) {
 enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
-val users = mapOf(
-    "alice" to UserData(salt = "saltAlice", hash = "0ded4a676ee2fcd61ab5772e67ac33ef2ada6a929470cac9cb703cc9e6315c85"), 
-    "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
-)
 
 // класс ресурса. нечто вроде имитации файловой структуры в проводнике на компе.
 // по заданию принимает имя, размер.
@@ -81,33 +77,11 @@ fun main(args: Array<String>) {
     } catch (e: Exception) {
         exitProcess(ExitCode.HELP.code)
     }
-
+    val (users, root) = createMockData()
     val user = users[login]
-    if (user == null) {
-        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
-    }
-    val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
-    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
-    if (hash(password, user.salt) != user.hash) {
-        
-        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
-    }
+    authorization(user, password)
 
-    val root = Resource("root", 100)
-    val folderA = Resource("A", 50, root)
-    val folderB = Resource("B", 20, folderA)
-    val fileC = Resource("C", 10, folderB)
-    val fileD =  Resource("D", 10, root)
-
-    root.addChild(folderA)
-    root.addChild(fileD)
-    folderA.addChild(folderB)
-    folderB.addChild(fileC)
-
-    folderA.grantPermission("alice", Action.READ)
-    folderB.grantPermission("alice", Action.WRITE)
-    fileC.grantPermission("alice", Action.EXECUTE)
-        if(volume.toIntOrNull() == null){
+    if(volume.toIntOrNull() == null){
         exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
     }
     val target = root.findByPath(resource)
@@ -132,6 +106,41 @@ fun main(args: Array<String>) {
     }
     exitProcess(ExitCode.SUCCESS.code)
     
+}
+
+fun authorization(user: UserData? = null, password: String) {
+    
+    if (user == null) {
+        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
+    }
+    val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
+    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
+    if (hash(password, user.salt) != user.hash) {
+        
+        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
+    }
+
+}
+
+fun createMockData(): Pair<Map<String, UserData>, Resource> {
+    val users = mapOf(
+        "alice" to UserData(salt = "saltAlice", hash = "0ded4a676ee2fcd61ab5772e67ac33ef2ada6a929470cac9cb703cc9e6315c85"),
+        "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
+    )
+    val root = Resource("root", 100)
+    val folderA = Resource("A", 50, root)
+    val folderB = Resource("B", 20, folderA)
+    val fileC = Resource("C", 10, folderB)
+    val fileD = Resource("D", 10, root)
+
+    root.addChild(folderA)
+    root.addChild(fileD)
+    folderA.addChild(folderB)
+    folderB.addChild(fileC)
+    folderA.grantPermission("alice", Action.READ)
+    folderB.grantPermission("alice", Action.WRITE)
+    fileC.grantPermission("alice", Action.EXECUTE)
+    return users to root
 }
 
 
