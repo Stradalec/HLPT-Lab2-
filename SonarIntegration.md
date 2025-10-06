@@ -3,7 +3,15 @@
 2. Загрузка Community Edition, распаковка файла, запуск сервера (StartSonar.bat)
 3. Войти в панель управления (на порту 9000)
 4. Импортировать проект из удалённого репозитория, скачать SonarScanner (SonarCLI).
-5. Создать в корне проекта файл с настройками (sonar-project.properties), такие как sonar.projectKey, sonar.organization, sonar.sources sonar.sourceEncoding, sonar.login
+5. Создать в корне проекта файл с настройками (sonar-project.properties), такие как sonar.projectKey, sonar.organization, sonar.sources sonar.sourceEncoding. Пример:
+```
+sonar.projectKey="ключ"
+sonar.organization="название_организации"
+sonar.sources=.
+sonar.language=kotlin
+sonar.sourceEncoding=UTF-8
+```
+Почему sonar.sources=. , а не конкретная папка? Чтобы анализировались все исходные файлы,  а не одна папка. Т.к. всё пока лежит просто в корне, изменять тут ничего не требуется.
 6. Добавить  secrets, создав через настройки в Github 
 7. Создать через Github .github/workflows/cool_workflow_name.yml. В него добавить следующее:
 ```
