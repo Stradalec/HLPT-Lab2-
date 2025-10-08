@@ -1,7 +1,10 @@
+package app.core
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
+
+
 
 enum class ExitCode(val code: Int) {
     SUCCESS(0),
@@ -106,7 +109,7 @@ fun authorization(user: UserData? = null, password: String) {
     if (user == null) {
         exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
     }
-    val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
+    //val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
     //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
     if (hash(password, user.salt) != user.hash) {
         
