@@ -13,6 +13,7 @@ jobs:
     env:
       CI_COMMIT_REF_NAME: ${{ github.ref_name }}
       CI_COMMIT_BRANCH: ${{ github.ref_name }}
+      CI_PULL_REQUEST_BASE: ${{ github.base_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,3 +25,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           CI_COMMIT_REF_NAME: ${{ env.CI_COMMIT_REF_NAME }}
           CI_COMMIT_BRANCH: ${{ env.CI_COMMIT_BRANCH }}
+          CI_PULL_REQUEST_BASE: ${{ env.CI_PULL_REQUEST_BASE}}
