@@ -1,10 +1,7 @@
-package app.core
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.Test
 
 
 enum class ExitCode(val code: Int) {
@@ -70,8 +67,9 @@ fun main(args: Array<String>) {
         exitProcess(ExitCode.HELP.code)
     }
     val (users, root) = createMockData()
+    val authService = AuthService()
     val user = users[login]
-    authorization(user, password)
+    authService.authorization(user, password)
 
     if(volume.toIntOrNull() == null){
         exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
@@ -105,19 +103,7 @@ fun main(args: Array<String>) {
     
 }
 
-fun authorization(user: UserData? = null, password: String) {
-    
-    if (user == null) {
-        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
-    }
-    //val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
-    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
-    if (hash(password, user.salt) != user.hash) {
-        
-        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
-    }
 
-}
 
 fun createMockData(): Pair<Map<String, UserData>, Resource> {
     val users = mapOf(
@@ -138,22 +124,7 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
 }
 
 
-fun hash(password: String, salt: String): String {
-    val digest = MessageDigest.getInstance("SHA-256")
-    val combined = salt + password
-    val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
-    return bytesToHex(hashBytes)
-}
 
-fun bytesToHex(hash: ByteArray): String {
-    val hexString = StringBuilder(2 * hash.size)
-    for (byte in hash) {
-        val hex = Integer.toHexString(0xff and byte.toInt())
-        if (hex.length == 1) hexString.append('0')
-        hexString.append(hex)
-    }
-    return hexString.toString()
-}
 
 class PermissionManager {
     private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
@@ -175,3 +146,36 @@ class PermissionManager {
     }
 }
 
+class AuthService {
+
+fun authorization(user: UserData? = null, password: String) {
+    
+    if (user == null) {
+        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
+    }
+    //val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
+    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
+    if (hash(password, user.salt) != user.hash) {
+        
+        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
+    }
+
+}
+
+fun hash(password: String, salt: String): String {
+    val digest = MessageDigest.getInstance("SHA-256")
+    val combined = salt + password
+    val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
+    return bytesToHex(hashBytes)
+}
+
+fun bytesToHex(hash: ByteArray): String {
+    val hexString = StringBuilder(2 * hash.size)
+    for (byte in hash) {
+        val hex = Integer.toHexString(0xff and byte.toInt())
+        if (hex.length == 1) hexString.append('0')
+        hexString.append(hex)
+    }
+    return hexString.toString()
+}
+}
