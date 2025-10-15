@@ -3,7 +3,6 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
-
 enum class ExitCode(val code: Int) {
     SUCCESS(0),
     HELP(1),
@@ -20,10 +19,6 @@ enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
 
-// класс ресурса. нечто вроде имитации файловой структуры в проводнике на компе.
-// по заданию принимает имя, размер.
-// имеет батьку для реализации иерархии.
-// по сути представляет собой дерево. методы для поиска и получения дочерних узлов "папочек".
 class Resource(
     val name: String,
     val maxVolume: Int = 10,
@@ -46,8 +41,6 @@ class Resource(
         }
         return current
     }
-
-
 }
 
 fun main(args: Array<String>) {
@@ -95,15 +88,12 @@ fun main(args: Array<String>) {
         exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
     }
 
-
     if (volume.toInt() > 10) {
         exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
     }
     exitProcess(ExitCode.SUCCESS.code)
     
 }
-
-
 
 fun createMockData(): Pair<Map<String, UserData>, Resource> {
     val users = mapOf(
@@ -123,10 +113,7 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
     return users to root
 }
 
-
-
-
-class PermissionManager {
+class PermissionManager : IPermissionManager {
     private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
 
     fun grantPermission(resourceName: String, user: String, action: Action) {
@@ -146,36 +133,43 @@ class PermissionManager {
     }
 }
 
-class AuthService {
-
-fun authorization(user: UserData? = null, password: String) {
-    
-    if (user == null) {
-        exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
-    }
-    //val hashedPassword = hash(password, user.salt) //Этот код выводит hash, чтобы не хранить его в открытом доступе
-    //println("Password: $hashedPassword")  //Можно переназначить соль, получить новый хэш и внести для пользователя 
-    if (hash(password, user.salt) != user.hash) {
-        
-        exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
-    }
-
+interface IPermissionManager {
+    private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
+    fun grantPermission(resourceName: String, user: String, action: Action)
+    fun hasPermission(resource: Resource?, user: String, action: Action): Boolean
 }
 
-fun hash(password: String, salt: String): String {
-    val digest = MessageDigest.getInstance("SHA-256")
-    val combined = salt + password
-    val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
-    return bytesToHex(hashBytes)
+interface IAuthService {
+    fun authorization(user: UserData? = null, password: String)
+    fun getHash(password: String, salt: String): String
+    fun bytesToHex(hash: ByteArray): String
 }
 
-fun bytesToHex(hash: ByteArray): String {
-    val hexString = StringBuilder(2 * hash.size)
-    for (byte in hash) {
-        val hex = Integer.toHexString(0xff and byte.toInt())
-        if (hex.length == 1) hexString.append('0')
-        hexString.append(hex)
+class AuthService : IAuthService {
+    fun authorization(user: UserData? = null, password: String) {
+        if (user == null) {
+            exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
+        }
+
+        if (hash(password, user.salt) != user.hash) {
+            exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
+        }
     }
-    return hexString.toString()
-}
+
+    fun getHash(password: String, salt: String): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        val combined = salt + password
+        val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
+        return bytesToHex(hashBytes)
+    }
+
+    fun bytesToHex(hash: ByteArray): String {
+        val hexString = StringBuilder(2 * hash.size)
+        for (byte in hash) {
+            val hex = Integer.toHexString(0xff and byte.toInt())
+            if (hex.length == 1) hexString.append('0')
+            hexString.append(hex)
+        }
+        return hexString.toString()
+    }
 }
