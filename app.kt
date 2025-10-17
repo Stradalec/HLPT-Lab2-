@@ -93,6 +93,10 @@ class PermissionManager : IPermissionManager {
     }
 }
 
+interface IResourceRepository {
+    
+}
+
 interface IPermissionManager {
     fun grantPermission(resourceName: String, user: String, action: Action)
     fun hasPermission(resource: Resource?, user: String, action: Action): Boolean
@@ -144,38 +148,38 @@ class CommandHandler(){
     fun workWithArguments(arguments: Array<String>){
         parser.parse(arguments)
         val (users, root) = createMockData()
-    val authService = AuthService()
-    val user = users[login]
-    authService.authorization(user, password)
+        val authService = AuthService()
+        val user = users[login]
+        authService.authorization(user, password)
 
-    if(volume.toIntOrNull() == null){
-        exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
-    }
-    val target = root.findByPath(resource)
-    val act = when (action.lowercase()) {
-        "read" -> Action.READ
-        "write" -> Action.WRITE
-        "execute" -> Action.EXECUTE
-        else -> {
-            exitProcess(ExitCode.ERROR_INVALID_ACTION.code)
+        if(volume.toIntOrNull() == null){
+            exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
         }
-    }
-    if (target == null) {
-        exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
-    }
-    val permissionManager = PermissionManager()
-    permissionManager.grantPermission("A", "alice", Action.READ)
-    permissionManager.grantPermission("B", "alice", Action.WRITE)
-    permissionManager.grantPermission("C", "alice", Action.EXECUTE)
+        val target = root.findByPath(resource)
+        val act = when (action.lowercase()) {
+            "read" -> Action.READ
+            "write" -> Action.WRITE
+            "execute" -> Action.EXECUTE
+            else -> {
+                exitProcess(ExitCode.ERROR_INVALID_ACTION.code)
+            }
+        }
+        if (target == null) {
+            exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
+        }
+        val permissionManager = PermissionManager()
+        permissionManager.grantPermission("A", "alice", Action.READ)
+        permissionManager.grantPermission("B", "alice", Action.WRITE)
+        permissionManager.grantPermission("C", "alice", Action.EXECUTE)
 
-    if (!permissionManager.hasPermission(target, login, act)) {
-        exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
-    }
+        if (!permissionManager.hasPermission(target, login, act)) {
+            exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
+        }
 
-    if (volume.toInt() > 10) {
-        exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
-    }
-    exitProcess(ExitCode.SUCCESS.code)
+        if (volume.toInt() > 10) {
+            exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
+        }
+        exitProcess(ExitCode.SUCCESS.code)
     }
     
 }
