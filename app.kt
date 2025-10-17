@@ -94,8 +94,13 @@ class PermissionManager : IPermissionManager {
 }
 
 interface IResourceRepository {
-    
+    fun add(resource: Resource)
+    fun get(name: String): Resource?
+    fun findByPath(path: String): Resource?
+    fun remove(name: String): Boolean
+    fun getAll(): List<Resource>
 }
+
 
 interface IPermissionManager {
     fun grantPermission(resourceName: String, user: String, action: Action)
