@@ -114,15 +114,15 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
 }
 
 class PermissionManager : IPermissionManager {
-    private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
+    val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
 
-    fun grantPermission(resourceName: String, user: String, action: Action) {
+    override fun grantPermission(resourceName: String, user: String, action: Action) {
         val userPerms = permissions.computeIfAbsent(resourceName) { mutableMapOf() }
         val actions = userPerms.computeIfAbsent(user) { mutableSetOf() }
         actions.add(action)
     }
 
-    fun hasPermission(resource: Resource?, user: String, action: Action): Boolean {
+    override fun hasPermission(resource: Resource?, user: String, action: Action): Boolean {
         if (resource == null) return false
         val userActions = permissions[resource.name]?.get(user)
         return if (userActions != null && action in userActions) {
@@ -134,36 +134,35 @@ class PermissionManager : IPermissionManager {
 }
 
 interface IPermissionManager {
-    private val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
     fun grantPermission(resourceName: String, user: String, action: Action)
     fun hasPermission(resource: Resource?, user: String, action: Action): Boolean
 }
 
 interface IAuthService {
-    fun authorization(user: UserData? = null, password: String)
+    fun authorization(user: UserData?, password: String)
     fun getHash(password: String, salt: String): String
     fun bytesToHex(hash: ByteArray): String
 }
 
 class AuthService : IAuthService {
-    fun authorization(user: UserData? = null, password: String) {
+    override fun authorization(user: UserData?, password: String) {
         if (user == null) {
             exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
         }
 
-        if (hash(password, user.salt) != user.hash) {
+        if (getHash(password, user.salt) != user.hash) {
             exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
         }
     }
 
-    fun getHash(password: String, salt: String): String {
+    override fun getHash(password: String, salt: String): String {
         val digest = MessageDigest.getInstance("SHA-256")
         val combined = salt + password
         val hashBytes = digest.digest(combined.toByteArray(StandardCharsets.UTF_8))
         return bytesToHex(hashBytes)
     }
 
-    fun bytesToHex(hash: ByteArray): String {
+    override fun bytesToHex(hash: ByteArray): String {
         val hexString = StringBuilder(2 * hash.size)
         for (byte in hash) {
             val hex = Integer.toHexString(0xff and byte.toInt())
