@@ -19,7 +19,15 @@ enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
 
-class Resource(
+interface IResource {
+    fun addChild(resource: Resource)
+    fun getChild(name: String): Resource?
+    fun findByPath(path: String): Resource?
+    fun remove(): Boolean
+    fun getAll(): List<Resource>
+}
+
+class Resource : IResource (
     val name: String,
     val maxVolume: Int = 10,
     val parent: Resource? = null
@@ -27,13 +35,13 @@ class Resource(
     private val children = mutableMapOf<String, Resource>()
     private val permissions = mutableMapOf<String, MutableSet<Action>>() // login -> actions
 
-    fun addChild(resource: Resource) {
+    override fun addChild(resource: Resource) {
         children[resource.name] = resource
     }
 
-    fun getChild(name: String): Resource? = children[name]
+    override fun getChild(name: String): Resource? = children[name]
 
-    fun findByPath(path: String): Resource? {
+    override fun findByPath(path: String): Resource? {
         val parts = path.split(".")
         var current: Resource? = this
         for (part in parts) {
@@ -41,6 +49,13 @@ class Resource(
         }
         return current
     }
+//
+//    override fun remove() {
+//        for (child in this.children) {
+//            this.children(child.name).remove()
+//
+//        }
+//    }
 }
 
 fun main(args: Array<String>) {
@@ -92,15 +107,6 @@ class PermissionManager : IPermissionManager {
         }
     }
 }
-
-interface IResourceRepository {
-    fun add(resource: Resource)
-    fun get(name: String): Resource?
-    fun findByPath(path: String): Resource?
-    fun remove(name: String): Boolean
-    fun getAll(): List<Resource>
-}
-
 
 interface IPermissionManager {
     fun grantPermission(resourceName: String, user: String, action: Action)
@@ -186,5 +192,4 @@ class CommandHandler(){
         }
         exitProcess(ExitCode.SUCCESS.code)
     }
-    
 }
