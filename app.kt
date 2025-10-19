@@ -23,15 +23,15 @@ interface IResource {
     fun addChild(resource: Resource)
     fun getChild(name: String): Resource?
     fun findByPath(path: String): Resource?
-    fun remove(): Boolean
+    fun remove(): Boolean // вопрос к корню
     fun getAll(): List<Resource>
 }
 
-class Resource : IResource (
+class Resource (
     val name: String,
     val maxVolume: Int = 10,
     val parent: Resource? = null
-) {
+) : IResource {
     private val children = mutableMapOf<String, Resource>()
     private val permissions = mutableMapOf<String, MutableSet<Action>>() // login -> actions
 
@@ -49,24 +49,22 @@ class Resource : IResource (
         }
         return current
     }
-//
-//    override fun remove() {
-//        for (child in this.children) {
-//            this.children(child.name).remove()
-//
-//        }
-//    }
-}
 
-fun main(args: Array<String>) {
-    if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
-        exitProcess(ExitCode.HELP.code)
+    override fun remove(): Boolean {
+        for (child in children.values.toList()) {
+            child.remove()
+        }
+        parent.children.remove(this.name)
+        return true
     }
-    val commandHandler = CommandHandler()
-    try {
-        commandHandler.workWithArguments(args)
-    } catch (e: Exception) {
-        exitProcess(ExitCode.HELP.code)
+
+    override fun getAll(): List<Resource> {
+        val all = mutableListOf<Resource>()
+        for (child in children.values) {
+            all.add(child)
+            all.addAll(child.getAll())
+        }
+        return all
     }
 }
 
@@ -74,7 +72,7 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
     val users = mapOf(
         "alice" to UserData(salt = "saltAlice", hash = "0ded4a676ee2fcd61ab5772e67ac33ef2ada6a929470cac9cb703cc9e6315c85"),
         "stradalets" to UserData(salt = "absoluteSuffering", hash = "No hash?")
-    )
+    ) // солевая алиса
     val root = Resource("root", 100)
     val folderA = Resource("A", 50, root)
     val folderB = Resource("B", 20, folderA)
@@ -86,6 +84,11 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
     folderA.addChild(folderB)
     folderB.addChild(fileC)
     return users to root
+}
+
+interface IPermissionManager {
+    fun grantPermission(resourceName: String, user: String, action: Action)
+    fun hasPermission(resource: Resource?, user: String, action: Action): Boolean
 }
 
 class PermissionManager : IPermissionManager {
@@ -106,11 +109,6 @@ class PermissionManager : IPermissionManager {
             hasPermission(resource.parent, user, action)
         }
     }
-}
-
-interface IPermissionManager {
-    fun grantPermission(resourceName: String, user: String, action: Action)
-    fun hasPermission(resource: Resource?, user: String, action: Action): Boolean
 }
 
 interface IAuthService {
@@ -147,7 +145,13 @@ class AuthService : IAuthService {
         return hexString.toString()
     }
 }
-class CommandHandler(){
+
+class CommandHandler(
+    private val authService: IAuthService,
+    private val permissionManager: IPermissionManager,
+    private val users: Map<String, UserData>,
+    private val root: Resource
+){
     val parser = ArgParser("app")
 
     val login by parser.option(ArgType.String, fullName = "login", description = "User login").required()
@@ -156,10 +160,10 @@ class CommandHandler(){
     val resource by parser.option(ArgType.String, fullName = "resource", description = "Path to resource").required()
     val volume by parser.option(ArgType.String, fullName = "volume", description = "Volume of file").required()
 
-    fun workWithArguments(arguments: Array<String>){
+    fun execute(arguments: Array<String>){
         parser.parse(arguments)
-        val (users, root) = createMockData()
-        val authService = AuthService()
+//        val (users, root) = createMockData()
+//        val authService = AuthService()
         val user = users[login]
         authService.authorization(user, password)
 
@@ -178,7 +182,7 @@ class CommandHandler(){
         if (target == null) {
             exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
         }
-        val permissionManager = PermissionManager()
+//        val permissionManager = PermissionManager()
         permissionManager.grantPermission("A", "alice", Action.READ)
         permissionManager.grantPermission("B", "alice", Action.WRITE)
         permissionManager.grantPermission("C", "alice", Action.EXECUTE)
@@ -192,4 +196,36 @@ class CommandHandler(){
         }
         exitProcess(ExitCode.SUCCESS.code)
     }
+}
+
+class App {
+    fun run(args: Array<String>) {
+        if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
+            exitProcess(ExitCode.HELP.code)
+        }
+
+        val (users, root) = createMockData()
+        val authService = AuthService()
+        val permissionManager = PermissionManager()
+        val handler = CommandHandler(authService, permissionManager, users, root)
+
+        try {
+            handler.execute(args)
+        } catch (e: Exception) {
+            exitProcess(ExitCode.HELP.code)
+        }
+    }
+}
+
+fun main(args: Array<String>) {
+//    if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
+//        exitProcess(ExitCode.HELP.code)
+//    }
+//    val commandHandler = CommandHandler()
+//    try {
+//        commandHandler.workWithArguments(args)
+//    } catch (e: Exception) {
+//        exitProcess(ExitCode.HELP.code)
+//    }
+    App().run(args)
 }
