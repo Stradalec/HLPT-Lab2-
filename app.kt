@@ -54,7 +54,7 @@ class Resource (
         for (child in children.values.toList()) {
             child.remove()
         }
-        parent.children.remove(this.name)
+        parent?.children?.remove(this.name)
         return true
     }
 
