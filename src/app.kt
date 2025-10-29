@@ -19,8 +19,6 @@ enum class Action { READ, WRITE, EXECUTE }
 // salo
 data class UserData(val salt: String, val hash: String)
 
-
-
 fun createMockData(): Pair<Map<String, UserData>, Resource> {
     val users = mapOf(
         "alice" to UserData(salt = "saltAlice", hash = "0ded4a676ee2fcd61ab5772e67ac33ef2ada6a929470cac9cb703cc9e6315c85"),
@@ -38,7 +36,6 @@ fun createMockData(): Pair<Map<String, UserData>, Resource> {
     folderB.addChild(fileC)
     return users to root
 }
-
 
 class App {
     fun run(args: Array<String>) {
@@ -60,14 +57,5 @@ class App {
 }
 
 fun main(args: Array<String>) {
-//    if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
-//        exitProcess(ExitCode.HELP.code)
-//    }
-//    val commandHandler = CommandHandler()
-//    try {
-//        commandHandler.workWithArguments(args)
-//    } catch (e: Exception) {
-//        exitProcess(ExitCode.HELP.code)
-//    }
     App().run(args)
 }
