@@ -1,3 +1,7 @@
+package handlers
+import interfaces.*
+import models.*
+import enumerators.*
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
@@ -19,6 +23,8 @@ class CommandHandler(
 
     fun execute(arguments: Array<String>){
         parser.parse(arguments)
+//        val (users, root) = createMockData()
+//        val authService = AuthService()
         val user = users[login]
         authService.authorization(user, password)
 
@@ -37,7 +43,7 @@ class CommandHandler(
         if (target == null) {
             exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
         }
-
+//        val permissionManager = PermissionManager()
         permissionManager.grantPermission("A", "alice", Action.READ)
         permissionManager.grantPermission("B", "alice", Action.WRITE)
         permissionManager.grantPermission("C", "alice", Action.EXECUTE)

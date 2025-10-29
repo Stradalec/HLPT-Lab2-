@@ -1,14 +1,9 @@
-import kotlinx.cli.*
+package models
+import interfaces.IAuthService
+import kotlin.system.exitProcess
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
-import kotlin.system.exitProcess
-
-interface IAuthService {
-    fun authorization(user: UserData?, password: String)
-    fun getHash(password: String, salt: String): String
-    fun bytesToHex(hash: ByteArray): String
-}
-
+import enumerators.ExitCode
 class AuthService : IAuthService {
     override fun authorization(user: UserData?, password: String) {
         if (user == null) {
