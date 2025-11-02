@@ -1,5 +1,6 @@
 package models
 import interfaces.IPermissionManager
+import enumerators.Action
 class PermissionManager : IPermissionManager {
     val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
 

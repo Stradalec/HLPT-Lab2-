@@ -1,2 +1,2 @@
-package models
+package enumerators
 enum class Action { READ, WRITE, EXECUTE }

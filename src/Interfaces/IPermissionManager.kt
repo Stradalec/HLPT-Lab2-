@@ -1,6 +1,6 @@
 package interfaces
 import models.Resource
-import models.Action
+import enumerators.Action
 
 interface IPermissionManager {
     fun grantPermission(resourceName: String, user: String, action: Action)
