@@ -49,5 +49,4 @@ public class ResourceTests {
         assertTrue(allResources.containsAll(listOf(childOne, childTwo, farChild)))
         assertEquals(3, allResources.size)
     }
-
 }
