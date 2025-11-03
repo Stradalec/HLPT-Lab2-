@@ -11,7 +11,7 @@ CommandHandler - проверить корректность парсинга п
 Команда запуска тестов из консоли:
 java -jar libs/junit-platform-console-standalone.jar --class-path app.jar --select-class ResourceTests
 (Вместо ResourceTests можно назначить другой класс)
-Допустим только после выполнения compileWithTests.sh!
+Делать только после выполнения compileWithTests.sh!
 
 Результаты выполнения тестов: (временная версия)
 11 успешно.
