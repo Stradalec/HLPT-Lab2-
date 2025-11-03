@@ -8,3 +8,7 @@ Resource. Проверяем на входе в addChild то, что добав
 UserData - о, это data class, приятно.
 CommandHandler - проверить корректность парсинга параметров. Придётся жёстко замокать authService: IAuthService, permissionManager: IPermissionManager users: Map<String, UserData>, root: Resource, благо есть MockData и отдельные классы (надо будет подумать, как их подцепить), проверить, что volume число и прочее.
 
+Команда запуска тестов из консоли:
+java -jar libs/junit-platform-console-standalone.jar --class-path app.jar --select-class ResourceTests
+(Вместо ResourceTests можно назначить другой класс)
+Допустим только после выполнения compileWithTests.sh!
