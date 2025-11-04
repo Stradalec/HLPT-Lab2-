@@ -11,10 +11,13 @@ public class PermissionManagerTests {
         val permissionManager = PermissionManager()
         val resource = Resource("Крутой ресурс с крутым названием")
         val user = "Крутой пользователь"
+
         permissionManager.grantPermission(resource.name,user, Action.READ)
+
         assertTrue(permissionManager.hasPermission(resource, user, Action.READ))
         assertFalse(permissionManager.hasPermission(resource, user, Action.WRITE))
     }
+
     @Test
     fun testPermissionTransmission() {
         val permissionManager = PermissionManager()
@@ -31,7 +34,24 @@ public class PermissionManagerTests {
     fun testNoPermissionReturnsFalse() {
         val permissionManager = PermissionManager()
         val resource = Resource("Res")
+
         assertFalse(permissionManager.hasPermission(resource, "unknown_user", Action.READ))
         assertFalse(permissionManager.hasPermission(resource, "user", Action.WRITE))
+    }
+
+    @Test
+    fun testHasPermissionForUnknownUserAndAction() {
+        val manager = PermissionManager()
+        val resource = Resource("Res")
+
+        manager.grantPermission(resource.name, "bro", Action.READ)
+        assertFalse(manager.hasPermission(resource, "notABro", Action.WRITE))
+    }
+
+    @Test
+    fun testHasPermissionWithNullResourceReturnsFalse() {
+        val manager = PermissionManager()
+        val result = manager.hasPermission(null, "someone", Action.READ)
+        assertFalse(result)
     }
 }

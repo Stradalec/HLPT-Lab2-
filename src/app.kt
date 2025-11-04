@@ -8,8 +8,6 @@ import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 
 
-
-
 // salo
 class App {
     fun run(args: Array<String>) {

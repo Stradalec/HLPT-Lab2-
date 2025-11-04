@@ -20,9 +20,16 @@ class AuthServiceTest {
     }
 
     @Test
-    fun testGetHashDifferentForDifferentInput() {
+    fun testGetHashDifferentForDifferentInput1() {
         val hash1 = authService.getHash("password1", "salt")
         val hash2 = authService.getHash("password2", "salt")
+        assertNotEquals(hash1, hash2)
+    }
+
+    @Test
+    fun testGetHashDifferentForDifferentInput2() {
+        val hash1 = authService.getHash("password", "salt1")
+        val hash2 = authService.getHash("password", "salt2")
         assertNotEquals(hash1, hash2)
     }
 
@@ -38,5 +45,12 @@ class AuthServiceTest {
         val empty = byteArrayOf()
         val hex = authService.bytesToHex(empty)
         assertEquals("", hex)
+    }
+
+    @Test
+    fun testGetHashWithEmptyStrings() {
+        val result = authService.getHash("", "")
+        assertNotNull(result)
+        assertTrue(result.isNotEmpty())
     }
 }

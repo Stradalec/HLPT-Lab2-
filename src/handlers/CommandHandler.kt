@@ -11,7 +11,8 @@ class CommandHandler(
     private val authService: IAuthService,
     private val permissionManager: IPermissionManager,
     private val users: Map<String, UserData>,
-    private val root: Resource
+    private val root: Resource,
+    private val exitStrategy: ExitStrategy = RealExitStrategy
 ){
     val parser = ArgParser("app")
 
@@ -23,13 +24,11 @@ class CommandHandler(
 
     fun execute(arguments: Array<String>){
         parser.parse(arguments)
-//        val (users, root) = createMockData()
-//        val authService = AuthService()
         val user = users[login]
         authService.authorization(user, password)
 
         if(volume.toIntOrNull() == null){
-            exitProcess(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
+            exitStrategy.exit(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
         }
         val target = root.findByPath(resource)
         val act = when (action.lowercase()) {
@@ -37,11 +36,11 @@ class CommandHandler(
             "write" -> Action.WRITE
             "execute" -> Action.EXECUTE
             else -> {
-                exitProcess(ExitCode.ERROR_INVALID_ACTION.code)
+                exitStrategy.exit(ExitCode.ERROR_INVALID_ACTION.code)
             }
         }
         if (target == null) {
-            exitProcess(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
+            exitStrategy.exit(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
         }
 //        val permissionManager = PermissionManager()
         permissionManager.grantPermission("A", "alice", Action.READ)
@@ -49,12 +48,12 @@ class CommandHandler(
         permissionManager.grantPermission("C", "alice", Action.EXECUTE)
 
         if (!permissionManager.hasPermission(target, login, act)) {
-            exitProcess(ExitCode.ERROR_NO_PERMISSION.code)
+            exitStrategy.exit(ExitCode.ERROR_NO_PERMISSION.code)
         }
 
         if (volume.toInt() > 10) {
-            exitProcess(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
+            exitStrategy.exit(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
         }
-        exitProcess(ExitCode.SUCCESS.code)
+        exitStrategy.exit(ExitCode.SUCCESS.code)
     }
 }

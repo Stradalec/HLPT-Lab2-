@@ -13,6 +13,7 @@ public class ResourceTests {
         assertEquals(child, root.getChild("child"))
         assertNull(root.getChild("nonexistent"))
     }
+
     @Test
     fun testFindResourceByPath() {
         val root = Resource("root")
@@ -25,15 +26,20 @@ public class ResourceTests {
         assertNull(root.findByPath("A.C"))
         assertNull(root.findByPath("Not.Exist"))
     }
+
     @Test
     fun testResourceRemove() {
         val root = Resource("root")
         val doomedChild = Resource("child", parent = root)
+
         root.addChild(doomedChild)
+
         val checkRemove = doomedChild.remove()
+
         assertTrue(checkRemove)
         assertNull(root.getChild("child"))
     }
+
     @Test
     fun testGetAll() {
         val root = Resource("root")
