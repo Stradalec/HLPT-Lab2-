@@ -5,14 +5,15 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import enumerators.ExitCode
 class AuthService : IAuthService {
-    override fun authorization(user: UserData?, password: String) {
+    override fun authorization(user: UserData?, password: String): Int {
         if (user == null) {
-            exitProcess(ExitCode.ERROR_UNKNOWN_USER.code)
+            return ExitCode.ERROR_UNKNOWN_USER.code
         }
 
         if (getHash(password, user.salt) != user.hash) {
-            exitProcess(ExitCode.ERROR_WRONG_PASSWORD.code)
+            return ExitCode.ERROR_WRONG_PASSWORD.code
         }
+        return 0
     }
 
     override fun getHash(password: String, salt: String): String {

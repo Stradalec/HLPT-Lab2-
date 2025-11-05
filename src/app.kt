@@ -21,7 +21,8 @@ class App {
         val handler = CommandHandler(authService, permissionManager, users, root)
 
         try {
-            handler.execute(args)
+            var result = handler.execute(args)
+            exitProcess(result)
         } catch (e: Exception) {
             exitProcess(ExitCode.HELP.code)
         }

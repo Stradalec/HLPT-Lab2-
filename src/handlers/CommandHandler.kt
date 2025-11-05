@@ -22,13 +22,16 @@ class CommandHandler(
     val resource by parser.option(ArgType.String, fullName = "resource", description = "Path to resource").required()
     val volume by parser.option(ArgType.String, fullName = "volume", description = "Volume of file").required()
 
-    fun execute(arguments: Array<String>){
+    fun execute(arguments: Array<String>) : Int {
         parser.parse(arguments)
         val user = users[login]
-        authService.authorization(user, password)
-
+        var exitCodeValue = ExitCode.SUCCESS.code
+        exitCodeValue = authService.authorization(user, password)
+        if (exitCodeValue != 0){
+            return exitCodeValue
+        }
         if(volume.toIntOrNull() == null){
-            exitStrategy.exit(ExitCode.ERROR_INVALID_VOLUME_FORMAT.code)
+            return ExitCode.ERROR_INVALID_VOLUME_FORMAT.code
         }
         val target = root.findByPath(resource)
         val act = when (action.lowercase()) {
@@ -36,24 +39,23 @@ class CommandHandler(
             "write" -> Action.WRITE
             "execute" -> Action.EXECUTE
             else -> {
-                exitStrategy.exit(ExitCode.ERROR_INVALID_ACTION.code)
+                return ExitCode.ERROR_INVALID_ACTION.code
             }
         }
         if (target == null) {
-            exitStrategy.exit(ExitCode.ERROR_RESOURCE_NOT_FOUND.code)
+            return ExitCode.ERROR_RESOURCE_NOT_FOUND.code
         }
-//        val permissionManager = PermissionManager()
         permissionManager.grantPermission("A", "alice", Action.READ)
         permissionManager.grantPermission("B", "alice", Action.WRITE)
         permissionManager.grantPermission("C", "alice", Action.EXECUTE)
 
         if (!permissionManager.hasPermission(target, login, act)) {
-            exitStrategy.exit(ExitCode.ERROR_NO_PERMISSION.code)
+            return ExitCode.ERROR_NO_PERMISSION.code
         }
 
         if (volume.toInt() > 10) {
-            exitStrategy.exit(ExitCode.ERROR_EXCEED_MAX_VOLUME.code)
+           return ExitCode.ERROR_EXCEED_MAX_VOLUME.code
         }
-        exitStrategy.exit(ExitCode.SUCCESS.code)
+        return exitCodeValue
     }
 }

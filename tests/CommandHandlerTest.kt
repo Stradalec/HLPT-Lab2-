@@ -32,7 +32,7 @@ class CommandHandlerTest {
     @BeforeEach
     fun setup() {
         mockAuthService = object : IAuthService {
-            override fun authorization(user: UserData?, password: String) { /* пустота */ }
+            override fun authorization(user: UserData?, password: String) : Int { return 0}
             override fun getHash(password: String, salt: String) = "mock"
             override fun bytesToHex(hash: ByteArray) = "mock"
         }
