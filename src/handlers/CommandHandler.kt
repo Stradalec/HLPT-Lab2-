@@ -12,7 +12,7 @@ class CommandHandler(
     private val permissionManager: IPermissionManager,
     private val users: Map<String, UserData>,
     private val root: Resource,
-    private val exitStrategy: ExitStrategy = RealExitStrategy
+    private val exitStrategy: IExitStrategy = RealExitStrategy
 ){
     val parser = ArgParser("app")
 
