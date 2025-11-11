@@ -7,15 +7,6 @@ import enumerators.*
 import kotlinx.cli.*
 
 
-// фейк стратегия для тестов
-class TestExit(val code: Int) : RuntimeException()
-class FakeExit : IExitStrategy {
-    var last: Int? = null
-    override fun exit(code: Int): Nothing {
-        last = code
-        throw TestExit(code)
-    }
-}
 
 class MutablePermissionManager(var isAllowed: Boolean = true) : IPermissionManager {
     override fun grantPermission(resourceName: String, user: String, action: Action) { /* no-op */ }
@@ -27,7 +18,6 @@ class CommandHandlerTest {
     private lateinit var mockPermissionManager: IPermissionManager
     private lateinit var mockUsers: Map<String, UserData>
     private lateinit var mockRoot: Resource
-    private lateinit var exit: FakeExit
 
     @BeforeEach
     fun setup() {
@@ -42,15 +32,13 @@ class CommandHandlerTest {
         val (u, r) = createMockData()
         mockUsers = u
         mockRoot = r
-
-        exit = FakeExit()
     }
 
     private fun runAndCatch(vararg args: String): Int {
-        val handler = CommandHandler(mockAuthService, mockPermissionManager, mockUsers, mockRoot, exit)
-        val executeResult = assertThrows(TestExit::class.java) { handler.execute(args as Array<String>) }
+        val handler = CommandHandler(mockAuthService, mockPermissionManager, mockUsers, mockRoot)
+        val executeResult = { handler.execute(args as Array<String>) }
 
-        return executeResult.code
+        return executeResult()
     }
 
     @Test
@@ -121,9 +109,9 @@ class CommandHandlerTest {
 
     @Test
     fun testMissingRequiredOptionCausesCliError() {
-        val handler = CommandHandler(mockAuthService, mockPermissionManager, mockUsers, mockRoot, exit)
+        val handler = CommandHandler(mockAuthService, mockPermissionManager, mockUsers, mockRoot)
         // скип --volume
         val args = arrayOf("--login","alice","--password","123","--action","read","--resource","A")
-        assertThrows(Exception::class.java) { handler.execute(args) }
+        assertThrows(Exception::class.java) {handler.execute(args)}
     }
 }

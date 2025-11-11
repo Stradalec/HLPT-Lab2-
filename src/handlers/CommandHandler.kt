@@ -23,3 +23,4 @@ class CommandHandler(
             is CommandParser.ParseResult.Ok -> useCase.execute(parsed.command)
         }
 }
+}
