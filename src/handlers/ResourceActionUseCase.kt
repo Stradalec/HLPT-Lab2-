@@ -7,11 +7,11 @@ import enumerators.*
 class ResourceActionUseCase(
     private val authService: IAuthService,
     private val permissionManager: IPermissionManager,
-    private val users: Map<String, UserData>,
+    private val users: IUserRepository,
     private val root: Resource
 ) {
     fun execute(cmd: Command): Int {
-        val user = users[cmd.login]
+        val user = users.findByLogin(cmd.login)
         val authExitCodeValue = authService.authorization(user, cmd.password)
 
         if (authExitCodeValue != 0) return authExitCodeValue

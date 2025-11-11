@@ -11,11 +11,11 @@ import kotlin.system.exitProcess
 class CommandHandler(
     private val authService: IAuthService,
     private val permissionManager: IPermissionManager,
-    private val users: Map<String, UserData>,
+    private val userRepository: IUserRepository,
     private val root: Resource
 ){
     private val parser = CommandParser()
-    private val useCase = ResourceActionUseCase(authService, permissionManager, users, root)
+    private val useCase = ResourceActionUseCase(authService, permissionManager, userRepository, root)
 
     fun execute(arguments: Array<String>) : Int {
         return when (val parsed = parser.parse(arguments)) {
