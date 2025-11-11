@@ -5,6 +5,7 @@ import interfaces.*
 import models.*
 import enumerators.*
 import kotlinx.cli.*
+import repositories.*
 
 
 
@@ -16,7 +17,7 @@ class MutablePermissionManager(var isAllowed: Boolean = true) : IPermissionManag
 class CommandHandlerTest {
     private lateinit var mockAuthService: IAuthService
     private lateinit var mockPermissionManager: IPermissionManager
-    private lateinit var mockUsers: Map<String, UserData>
+    private lateinit var mockUsers: UserRepository
     private lateinit var mockRoot: Resource
 
     @BeforeEach
