@@ -1,6 +1,8 @@
 package models
+
 import interfaces.IResource
 import enumerators.Action
+
 class Resource (
     val name: String,
     val maxVolume: Int = 10,
