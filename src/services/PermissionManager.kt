@@ -1,22 +1,46 @@
 package models
+import interfaces.IPermissionRepository
+import interfaces.IResourceRepository
+import interfaces.IUserRepository
 import interfaces.IPermissionManager
 import enumerators.Action
-class PermissionManager : IPermissionManager {
-    val permissions = mutableMapOf<String, MutableMap<String, MutableSet<Action>>>()
+class PermissionManager (private val permissionRepo: IPermissionRepository, private val resourceRepo: IResourceRepository, private val userRepo: IUserRepository) : IPermissionManager  {
 
-    override fun grantPermission(resourceName: String, user: String, action: Action) {
-        val userPerms = permissions.computeIfAbsent(resourceName) { mutableMapOf() }
-        val actions = userPerms.computeIfAbsent(user) { mutableSetOf() }
-        actions.add(action)
+    override fun grantPermission(resourceName: String, userLogin: String, action: Action) {
+        val resource = resourceRepo.findByName(resourceName) ?: return
+        val user = userRepo.findByLogin(userLogin) ?: return
+        val userPerms = permissionRepo.findByUserAndResource(user!!.id, resource.id)
+        val actions = updateActions(userPerms?.availableActions ?: "---", action)
+        permissionRepo.grant(Permission(user!!.id, resource.id, actions))
     }
 
-    override fun hasPermission(resource: Resource?, user: String, action: Action): Boolean {
-        if (resource == null) return false
-        val userActions = permissions[resource.name]?.get(user)
-        return if (userActions != null && action in userActions) {
-            true
-        } else {
-            hasPermission(resource.parent, user, action)
+    override fun hasPermission(resourceId: Int, userId: Int, action: Action): Boolean {
+        val resource = resourceRepo.findById(resourceId) ?: return false
+        val foundPermission = permissionRepo.findByUserAndResource(userId, resourceId)
+        if (foundPermission != null && hasAction(foundPermission.availableActions, action)) {
+            return true
         }
+
+
+        return resource.parentId?.let { parentId ->
+            hasPermission(parentId, userId, action)
+        } ?: false
+    }
+
+    private fun hasAction(available: String, action: Action): Boolean = when (action) {
+        Action.READ -> available.getOrNull(0) == 'R'
+        Action.WRITE -> available.getOrNull(1) == 'W'
+        Action.EXECUTE -> available.getOrNull(2) == 'E'
+    }
+
+    private fun updateActions(current: String, action: Action): String {
+        val chars = current.toMutableList()
+        while (chars.size < 3) chars.add('-')
+        chars[action.ordinal] = when (action) {
+            Action.READ -> 'R'
+            Action.WRITE -> 'W'
+            Action.EXECUTE -> 'E'
+        }
+        return chars.joinToString("")
     }
 }

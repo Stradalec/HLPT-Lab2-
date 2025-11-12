@@ -7,29 +7,31 @@ import enumerators.*
 class ResourceActionUseCase(
     private val authService: IAuthService,
     private val permissionManager: IPermissionManager,
-    private val users: IUserRepository,
-    private val root: Resource
+    private val userRepository: IUserRepository,
+    private val resourceRepository: IResourceRepository
 ) {
     fun execute(cmd: Command): Int {
-        val user = users.findByLogin(cmd.login)
+       val user = userRepository.findByLogin(cmd.login)
+        ?: return ExitCode.ERROR_UNKNOWN_USER.code
         val authExitCodeValue = authService.authorization(user, cmd.password)
 
         if (authExitCodeValue != 0) return authExitCodeValue
-
-        val target = root.findByPath(cmd.resourcePath)
+        
+        val target = resourceRepository.findByPath(cmd.resourcePath)
             ?: return ExitCode.ERROR_RESOURCE_NOT_FOUND.code
 
-        permissionManager.grantPermission("A", "alice", Action.READ)
-        permissionManager.grantPermission("B", "alice", Action.WRITE)
-        permissionManager.grantPermission("C", "alice", Action.EXECUTE)
+        if (cmd.volume > target.maxVolume) {
+            return ExitCode.ERROR_EXCEED_MAX_VOLUME.code
+        }
 
-        if (!permissionManager.hasPermission(target, cmd.login, cmd.action)) {
+        
+
+        if (!permissionManager.hasPermission(target.id, user.id, cmd.action)) {
             return ExitCode.ERROR_NO_PERMISSION.code
         }
 
-        if (cmd.volume > 10) {
-            return ExitCode.ERROR_EXCEED_MAX_VOLUME.code
-        }
+        
+        
 
         return ExitCode.SUCCESS.code
     }

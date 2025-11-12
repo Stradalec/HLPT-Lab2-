@@ -6,20 +6,23 @@ import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
-
+import repositories.*
 
 // salo
 class App {
     fun run(args: Array<String>) {
+        
         if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
             exitProcess(ExitCode.HELP.code)
         }
-
-        val (users, root) = createMockData()
-        val authService = AuthService()
-        val permissionManager = PermissionManager()
-        val handler = CommandHandler(authService, permissionManager, users, root)
-
+        val (userRepository, resourceRepository, permissionRepository) = createMockData()
+        val handler = CommandHandler(
+            AuthService(),
+            userRepository,
+            resourceRepository,
+            permissionRepository
+        )
+        
         try {
             var result = handler.execute(args)
             exitProcess(result)
