@@ -1,0 +1,13 @@
+package enumerators
+
+enum class ExitCode(val code: Int) {
+    SUCCESS(0),
+    HELP(1),
+    ERROR_WRONG_PASSWORD(2),
+    ERROR_UNKNOWN_USER(3),
+    ERROR_INVALID_ACTION(4),
+    ERROR_NO_PERMISSION(5),
+    ERROR_RESOURCE_NOT_FOUND(6),
+    ERROR_INVALID_VOLUME_FORMAT(7),
+    ERROR_EXCEED_MAX_VOLUME(8)
+}
