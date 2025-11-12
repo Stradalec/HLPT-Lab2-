@@ -5,7 +5,7 @@ import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import enumerators.ExitCode
 class AuthService : IAuthService {
-    override fun authorization(user: UserData?, password: String): Int {
+    override fun authorization(user: User?, password: String): Int {
         if (user == null) {
             return ExitCode.ERROR_UNKNOWN_USER.code
         }

@@ -1,15 +1,15 @@
 package repositories
 
 import interfaces.IUserRepository
-import models.UserData
+import models.User
 
 class UserRepository : IUserRepository {
-    private val users = mutableMapOf<String, UserData>()
+    private val users = mutableMapOf<String, User>()
 
-    override fun findByLogin(login: String): UserData? = users[login]
+    override fun findByLogin(login: String): User? = users[login]
 
-    override fun save( userData: UserData) {
-        users[userData.login] = userData
+    override fun save( user: User) {
+        users[user.login] = user
     }
 
     override fun exists(login: String): Boolean = users.containsKey(login)
