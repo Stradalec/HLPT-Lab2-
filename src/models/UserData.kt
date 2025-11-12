@@ -1,2 +1,2 @@
 package models
-data class UserData(val salt: String, val hash: String)
+data class UserData(val login: String, val salt: String, val hash: String)

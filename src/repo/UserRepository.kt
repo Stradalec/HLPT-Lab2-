@@ -8,8 +8,8 @@ class UserRepository : IUserRepository {
 
     override fun findByLogin(login: String): UserData? = users[login]
 
-    override fun save(login: String, userData: UserData) {
-        users[login] = userData
+    override fun save( userData: UserData) {
+        users[userData.login] = userData
     }
 
     override fun exists(login: String): Boolean = users.containsKey(login)
