@@ -9,6 +9,8 @@ cd C:/Путь/До/Папки/С этой/Программой
 ./scripts//start.sh --login alice --password qwerty  --action read --resource A.B.C --volume 10
 Также можно запустить файл с тестами:
 ./scripts//test.sh
+Запуск инициализации БД:
+./scripts/setDatabase.sh
 Команда запуска тестов из консоли:
 java -jar libs/junit-platform-console-standalone.jar --class-path app.jar --select-class ResourceTests
 (Вместо ResourceTests можно назначить другой класс)

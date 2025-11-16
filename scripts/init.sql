@@ -20,7 +20,7 @@ CREATE TABLE resources (
 CREATE TABLE permissions (
     userId INT NOT NULL,
     resourceId INT NOT NULL,
-    availableActions VARCHAR(3) NOT NULL CHECK (availableActions GLOB '[R-][W-][E-]'),
+    availableActions VARCHAR(3) NOT NULL,
     PRIMARY KEY (userId, resourceId),
     FOREIGN KEY (userId) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (resourceId) REFERENCES resources(id) ON DELETE CASCADE
