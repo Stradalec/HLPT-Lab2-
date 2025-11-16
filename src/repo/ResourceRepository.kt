@@ -1,72 +1,46 @@
 package repositories
 import interfaces.IResourceRepository
 import models.Resource
+import database.*
+import dao.ResourceDao
 class ResourceRepository : IResourceRepository {
-    private val resources = mutableMapOf<Int,Resource>()
-    private val children = mutableMapOf<Int, MutableSet<Int>>()
-    override fun findById(id: Int): Resource? = resources[id]
+    private val resourceDao = ResourceDao()
+    override fun findById(id: Int): Resource? {
+        return Database.connection().use { inputConnection ->
+            resourceDao.findById(inputConnection, id)
+        }
+    }
 
-    override fun findByName(name: String): Resource? =
-        resources.values.find { it.name == name }
+    override fun findByName(name: String): Resource? {
+        return Database.connection().use { inputConnection ->
+             resourceDao.findByName(inputConnection, name)
+        }
+    }
 
-    override fun findByParent(parentId: Int): List<Resource> =
-    children[parentId]?.map { childId -> resources[childId] }?.filterNotNull() ?: emptyList()
+    override fun findByParent(parentId: Int): List<Resource> {
+        return Database.connection().use { inputConnection ->
+            resourceDao.findByParent(inputConnection, parentId)
+        }
+    }
 
     override fun save(resource: Resource) {
-        resources[resource.id] = resource
-        resource.parentId?.also { parentId ->
-            children.getOrPut(parentId) { mutableSetOf() } += resource.id
+        Database.connection().use { inputConnection ->
+            resourceDao.save(inputConnection, resource)
+            inputConnection.commit()
         }
     }
-    override fun delete(id: Int): Boolean {
-        val resource = resources.remove(id) ?: return false
-
-        resource.parentId?.let { parentId ->
-            children[parentId]?.remove(id)
-        }
-
-
-        val toDelete = mutableListOf<Int>()
-        collectAllDescendants(id, toDelete)
-        toDelete.forEach { delete(it) }
-
-        return true
-    }
-    private fun collectAllDescendants(parentId: Int, result: MutableList<Int>) {
-        val directChildren = children[parentId] ?: return
-        for (childId in directChildren) {
-            result.add(childId)
-            collectAllDescendants(childId, result)
+   override fun delete(id: Int): Boolean {
+        return Database.connection().use { inputConnection ->
+            val result = resourceDao.delete(inputConnection, id)
+            inputConnection.commit()
+            result
         }
     }
-    
 
     override fun findByPath(path: String): Resource? {
-        
-    if (path.isEmpty()) return null
-    val parts = path.split(".")
-    val root = resources.values.find { it.parentId == null } ?: return null
-
-    var current: Resource? = if (parts.first() == root.name) {
-        root
-    } else {
-        if (resources.values.any { it.name == parts.first() }) {
-            root
-        } else {
-            return null
+        return Database.connection().use { inputConnection ->
+            resourceDao.findByPath(inputConnection, path)
         }
     }
-
-    for (part in parts) {
-        if (current == null) return null
-        val childrenAtLevel = findByParent(current.id) 
-        val child = childrenAtLevel.find { it.name == part }
-            ?: return null 
-        current = child
-    }
-    return current
-}
-
-    fun getAll(): List<Resource> = resources.values.toList()
 
 }

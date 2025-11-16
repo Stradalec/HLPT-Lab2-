@@ -15,7 +15,9 @@ class App {
         if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
             exitProcess(ExitCode.HELP.code)
         }
-        val (userRepository, resourceRepository, permissionRepository) = createMockData()
+        val userRepository = UserRepository()           
+        val resourceRepository = ResourceRepository()
+        val permissionRepository = PermissionRepository()
         val handler = CommandHandler(
             AuthService(),
             userRepository,

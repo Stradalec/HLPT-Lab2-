@@ -1,30 +1,44 @@
 package repositories
 import interfaces.IPermissionRepository
 import models.Permission
-
+import database.*
+import dao.PermissionDao
 class PermissionRepository : IPermissionRepository{
-    private val perms = mutableMapOf<Pair<Int, Int>, Permission>() 
+    val permissionDao = PermissionDao()
 
-    override fun findByUserAndResource(userId: Int, resourceId: Int): Permission? =
-        perms[userId to resourceId]
+    override fun findByUserAndResource(userId: Int, resourceId: Int): Permission? {
+        return Database.connection().use { inputConnection ->
+            permissionDao.findByUserAndResource(inputConnection, userId, resourceId)
+        }
+    }
 
-    override fun findByResource(resourceId: Int): List<Permission> =
-        perms.values.filter { it.resourceId == resourceId }
+    override fun findByResource(resourceId: Int): List<Permission> {
+        return Database.connection().use { inputConnection ->
+            permissionDao.findByResource(inputConnection, resourceId)
+        }
+    }
 
-    override fun findByUser(userId: Int): List<Permission> =
-        perms.values.filter { it.userId == userId }
+    override fun findByUser(userId: Int): List<Permission> {
+        return Database.connection().use { inputConnection ->
+            permissionDao.findByUser(inputConnection, userId)
+        }
+    }
 
     override fun grant(permission: Permission) {
-        perms[permission.userId to permission.resourceId] = permission
+        Database.connection().use { inputConnection ->
+            permissionDao.grant(inputConnection, permission)
+            inputConnection.commit()
+        }
     }
 
     override fun revoke(userId: Int, resourceId: Int) {
-        perms.remove(userId to resourceId)
+        Database.connection().use { inputConnection ->
+            permissionDao.revoke(inputConnection, userId, resourceId)
+            inputConnection.commit()
+        }
     }
 
     override fun update(permission: Permission) {
-        if (perms.containsKey(permission.userId to permission.resourceId)) {
-            perms[permission.userId to permission.resourceId] = permission
-        }
+        grant(permission)
     }
 }
