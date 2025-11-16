@@ -15,6 +15,7 @@ resource.id
 availableActions String с 3 буквами (RWE) (R-E)
 
 Предположительная схема:
+```mermaid
 erDiagram
     users ||--o{ permissions : "1:N"
     resources ||--o{ permissions : "1:N"
@@ -38,3 +39,4 @@ erDiagram
         int resourceId PK, FK
         varchar availableActions
     }
+```
