@@ -28,7 +28,7 @@ class UserDao {
 
     fun findById(connection: Connection, id: Int): User? {
         val sql = "SELECT id, login, salt, hash FROM users WHERE id = ?"
-        connection.prepareStatement(sql).use { preparedStatement ->
+        return connection.prepareStatement(sql).use { preparedStatement ->
             preparedStatement.setInt(1, id)
             preparedStatement.executeQuery().use { result ->
                 if (result.next()) {
@@ -38,10 +38,11 @@ class UserDao {
                         salt = result.getString("salt"),
                         hash = result.getString("hash")
                     )
+                } else {
+                    null
                 }
             }
         }
-        return null
     }
 
     fun save(connection: Connection, user: User) {
