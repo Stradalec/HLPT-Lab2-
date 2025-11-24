@@ -18,6 +18,12 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
+      - name: Cache libs
+        uses: actions/cache@v3
+        with:
+          path: libs
+          key: libs-cache-${{ hashFiles('libs/*.jar') }}
+
       - name: Make scripts executable
         run: chmod +x scripts/*.sh
 
@@ -31,11 +37,8 @@ jobs:
       - name: Run app tests
         run: bash scripts/app-test.sh
 
-      #- name: SonarCloud Scan
-      #  uses: SonarSource/sonarcloud-github-action@master
-      #  env:
-      #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      #    SONAR_HOST_URL: https://sonarcloud.io
+      # TODO: реализация тестов через SonarCloud
+
 
       - name: Notify Telegram (success)
         if: success()
