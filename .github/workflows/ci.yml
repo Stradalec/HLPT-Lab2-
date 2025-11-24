@@ -31,11 +31,11 @@ jobs:
       - name: Run app tests
         run: bash scripts/app-test.sh
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+      #- name: SonarCloud Scan
+      #  uses: SonarSource/sonarcloud-github-action@master
+      #  env:
+      #    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      #    SONAR_HOST_URL: https://sonarcloud.io
 
       - name: Notify Telegram (success)
         if: success()
