@@ -1,3 +1,3 @@
 #!/bin/bash
-java -cp "app.jar;libs/*" AppKt "$@"
+java -cp "app-fat.jar;libs/*" AppKt "$@"
 echo "Exit code: $?"

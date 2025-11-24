@@ -18,7 +18,7 @@ total=${#cases[@]}
 
 for i in "${!cases[@]}"; do
   IFS='|' read -r args expected <<< "${cases[$i]}"
-  java -cp "app.jar;libs/*" AppKt $args
+  java -cp "app-fat.jar;libs/*" AppKt $args
   code=$?
   if [ $code -eq ${expected:-0} ]; then
     echo "Test $((i)): OK (exit $code)"
