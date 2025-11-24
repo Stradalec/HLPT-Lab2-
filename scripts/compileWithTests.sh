@@ -1,1 +1,1 @@
-kotlinc $(find src -name "*.kt") $(find tests -name "*.kt") -cp "libs/junit-platform-console-standalone.jar;libs/kotlinx-cli-jvm-0.3.6.jar" -include-runtime -d app-fat.jar
+kotlinc $(find src -name "*.kt") $(find tests -name "*.kt") -cp "libs/junit-platform-console-standalone.jar;libs/kotlinx-cli-jvm-0.3.6.jar" -include-runtime -d app.jar
