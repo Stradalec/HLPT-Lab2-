@@ -16,9 +16,19 @@ declare -a cases=(
 success_count=0
 total=${#cases[@]}
 
+UNAME_OUT="$(uname -s)"
+case "${UNAME_OUT}" in
+    MINGW*|MSYS*|CYGWIN*)
+        CP_SEP=';'
+        ;;
+    *)
+        CP_SEP=':'
+        ;;
+esac
+
 for i in "${!cases[@]}"; do
   IFS='|' read -r args expected <<< "${cases[$i]}"
-  java -cp "app-fat.jar;libs/*" AppKt $args
+  java -cp "app-fat.jar${CP_SEP}libs/*" AppKt $args
   code=$?
   if [ $code -eq ${expected:-0} ]; then
     echo "Test $((i)): OK (exit $code)"
