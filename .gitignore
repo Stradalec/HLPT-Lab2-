@@ -1,4 +1,4 @@
-.idea
 *.jar
 /build/
 /data
+.idea/workspace.xml
