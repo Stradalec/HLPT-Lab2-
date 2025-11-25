@@ -2,12 +2,15 @@ name: CI
 
 on:
   pull_request:
-    branches: ["main", "dev-database"]
+    branches: ["main"]
 
 jobs:
   build-test:
     runs-on: ubuntu-latest
-
+    env:
+      CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+      CI_COMMIT_BRANCH: ${{ github.ref_name }}
+      CI_PULL_REQUEST_BASE: ${{ github.base_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -17,6 +20,12 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
+
+      - name: Cache libs
+        uses: actions/cache@v3
+        with:
+          path: libs
+          key: libs-cache-${{ hashFiles('libs/*.jar') }}
 
       - name: Make scripts executable
         run: chmod +x scripts/*.sh
@@ -31,11 +40,17 @@ jobs:
       - name: Run app tests
         run: bash scripts/app-test.sh
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+          CI_COMMIT_REF_NAME: ${{ env.CI_COMMIT_REF_NAME }}
+          CI_COMMIT_BRANCH: ${{ env.CI_COMMIT_BRANCH }}
+          CI_PULL_REQUEST_BASE: ${{ env.CI_PULL_REQUEST_BASE}}
 
       - name: Notify Telegram (success)
         if: success()
