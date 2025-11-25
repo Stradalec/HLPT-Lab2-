@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: ["main", "dev-database"]
+    branches: ["main"]
 
 permissions:
   contents: write

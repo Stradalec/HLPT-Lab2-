@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    branches: ["main", "dev-database"]
+    branches: ["main"]
 
 jobs:
   build-test:
@@ -40,7 +40,6 @@ jobs:
       - name: Run app tests
         run: bash scripts/app-test.sh
 
-      # TODO: реализация тестов через SonarCloud
       - name: Checkout code
         uses: actions/checkout@v4
         with:
