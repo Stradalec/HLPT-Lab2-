@@ -7,7 +7,10 @@ on:
 jobs:
   build-test:
     runs-on: ubuntu-latest
-
+    env:
+      CI_COMMIT_REF_NAME: ${{ github.ref_name }}
+      CI_COMMIT_BRANCH: ${{ github.ref_name }}
+      CI_PULL_REQUEST_BASE: ${{ github.base_ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,7 +41,17 @@ jobs:
         run: bash scripts/app-test.sh
 
       # TODO: реализация тестов через SonarCloud
-
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          CI_COMMIT_REF_NAME: ${{ env.CI_COMMIT_REF_NAME }}
+          CI_COMMIT_BRANCH: ${{ env.CI_COMMIT_BRANCH }}
+          CI_PULL_REQUEST_BASE: ${{ env.CI_PULL_REQUEST_BASE}}
 
       - name: Notify Telegram (success)
         if: success()
