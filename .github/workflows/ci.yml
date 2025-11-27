@@ -33,9 +33,9 @@ jobs:
       - name: Build
         run: bash scripts/build.sh
 
-      # TODO: переписать unit-тесты под новую архитектуру.
-      #- name: Run unit tests
-      #  run: bash scripts/unit-test.sh
+      
+      - name: Run unit tests
+        run: bash scripts/unit-test.sh
 
       - name: Run app tests
         run: bash scripts/app-test.sh
