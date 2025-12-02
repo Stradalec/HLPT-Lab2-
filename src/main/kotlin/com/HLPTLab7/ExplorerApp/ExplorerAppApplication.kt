@@ -1,3 +1,4 @@
+package com.HLPTLab7.ExplorerApp
 import interfaces.*
 import models.*
 import enumerators.*
@@ -9,10 +10,14 @@ import kotlin.system.exitProcess
 import repositories.*
 import java.sql.SQLException
 import database.DatabaseConnectionException
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
+import org.springframework.boot.CommandLineRunner
+import org.springframework.boot.SpringApplication;
 
-// salo
-class App {
-    fun run(args: Array<String>) {
+@SpringBootApplication
+class ExplorerAppApplication : CommandLineRunner{
+	override fun run(args: Array<String>) {
         
         if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
             exitProcess(ExitCode.HELP.code)
@@ -38,9 +43,10 @@ class App {
             exitProcess(ExitCode.HELP.code)
         }
     }
-}
-
-
-fun main(args: Array<String>) {
-    App().run(args)
+	 companion object {
+        @JvmStatic
+        fun main(args: Array<String>) {
+            SpringApplication.run(ExplorerAppApplication::class.java, *args)
+        }
+    }
 }
