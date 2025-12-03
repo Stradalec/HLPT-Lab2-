@@ -14,11 +14,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.SpringApplication;
+import org.slf4j.LoggerFactory
 
 @SpringBootApplication
 class ExplorerAppApplication : CommandLineRunner{
+    private val logger = LoggerFactory.getLogger(ExplorerAppApplication::class.java)
 	override fun run(args: Array<String>) {
-        
+        logger.info("A DEBUG Message");
         if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
             exitProcess(ExitCode.HELP.code)
         }
@@ -30,7 +32,7 @@ class ExplorerAppApplication : CommandLineRunner{
             userRepository,
             resourceRepository,
             permissionRepository
-        )
+        )       
         
         try {
             var result = handler.execute(args)

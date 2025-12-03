@@ -29,3 +29,6 @@
 (Вместо ResourceTests можно назначить другой класс)
 
 **Делать только после выполнения compileWithTests.sh!**
+Запуск Maven
+ ./mvnw clean package
+ ./mvnw clean compile
