@@ -1,9 +1,11 @@
-package models
-import interfaces.IPermissionRepository
-import interfaces.IResourceRepository
-import interfaces.IUserRepository
-import interfaces.IPermissionManager
-import enumerators.Action
+package com.HLPTLab7.ExplorerApp.models
+import com.HLPTLab7.ExplorerApp.interfaces.IPermissionRepository
+import com.HLPTLab7.ExplorerApp.interfaces.IResourceRepository
+import com.HLPTLab7.ExplorerApp.interfaces.IUserRepository
+import com.HLPTLab7.ExplorerApp.interfaces.IPermissionManager
+import com.HLPTLab7.ExplorerApp.enumerators.Action
+import org.springframework.stereotype.Service
+@Service
 class PermissionManager (private val permissionRepo: IPermissionRepository, private val resourceRepo: IResourceRepository, private val userRepo: IUserRepository) : IPermissionManager  {
 
     override fun grantPermission(resourceName: String, userLogin: String, action: Action) {
@@ -11,7 +13,7 @@ class PermissionManager (private val permissionRepo: IPermissionRepository, priv
         val user = userRepo.findByLogin(userLogin) ?: return
         val userPerms = permissionRepo.findByUserAndResource(user!!.id, resource.id)
         val actions = updateActions(userPerms?.availableActions ?: "---", action)
-        permissionRepo.grant(Permission(user!!.id, resource.id, actions))
+        permissionRepo.grant(Permission(user.id, resource.id, actions))
     }
 
     override fun hasPermission(resourceId: Int, userId: Int, action: Action): Boolean {

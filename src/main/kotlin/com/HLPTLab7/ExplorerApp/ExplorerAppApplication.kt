@@ -1,15 +1,15 @@
 package com.HLPTLab7.ExplorerApp
-import interfaces.*
-import models.*
-import enumerators.*
-import handlers.*
+import com.HLPTLab7.ExplorerApp.interfaces.*
+import com.HLPTLab7.ExplorerApp.models.*
+import com.HLPTLab7.ExplorerApp.enumerators.*
+import com.HLPTLab7.ExplorerApp.handlers.*
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
-import repositories.*
+import com.HLPTLab7.ExplorerApp.repositories.*
 import java.sql.SQLException
-import database.DatabaseConnectionException
+import com.HLPTLab7.ExplorerApp.database.DatabaseConnectionException
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.CommandLineRunner
@@ -17,25 +17,17 @@ import org.springframework.boot.SpringApplication;
 import org.slf4j.LoggerFactory
 
 @SpringBootApplication
-class ExplorerAppApplication : CommandLineRunner{
+class ExplorerAppApplication(private val commandHandler: CommandHandler) : CommandLineRunner{
     private val logger = LoggerFactory.getLogger(ExplorerAppApplication::class.java)
 	override fun run(args: Array<String>) {
         logger.info("A DEBUG Message");
         if (args.isEmpty() || args.any { it == "--help" || it == "-h" }) {
             exitProcess(ExitCode.HELP.code)
         }
-        val userRepository = UserRepository()           
-        val resourceRepository = ResourceRepository()
-        val permissionRepository = PermissionRepository()
-        val handler = CommandHandler(
-            AuthService(),
-            userRepository,
-            resourceRepository,
-            permissionRepository
-        )       
         
         try {
-            var result = handler.execute(args)
+            var result = commandHandler.execute(args)
+            logger.info(result.toString());
             exitProcess(result)
         } catch (e: DatabaseConnectionException) {
             exitProcess(ExitCode.ERROR_DATABASE_CONNECTION.code)

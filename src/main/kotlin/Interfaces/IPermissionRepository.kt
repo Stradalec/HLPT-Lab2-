@@ -1,5 +1,5 @@
-package interfaces
-import models.Permission
+package com.HLPTLab7.ExplorerApp.interfaces
+import com.HLPTLab7.ExplorerApp.models.Permission
 
 interface IPermissionRepository {
     fun findByUserAndResource(userId: Int, resourceId: Int): Permission?

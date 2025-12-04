@@ -1,34 +1,22 @@
-package handlers
+package com.HLPTLab7.ExplorerApp.handlers
 
-import interfaces.*
-import models.*
-import enumerators.*
+import com.HLPTLab7.ExplorerApp.interfaces.*
+import com.HLPTLab7.ExplorerApp.models.*
+import com.HLPTLab7.ExplorerApp.enumerators.*
 import kotlinx.cli.*
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
-
+import org.springframework.stereotype.Component
+@Component
 class CommandHandler(
-    private val authService: IAuthService, 
-    private val userRepository: IUserRepository,
-    private val resourceRepository: IResourceRepository,
-    private val permissionRepository: IPermissionRepository
+    private val parser: CommandParser,
+    private val useCase: ResourceActionUseCase
 ){
-    private val permissionManager = PermissionManager(permissionRepository, resourceRepository, userRepository)
-    private val parser = CommandParser()
-
-    fun execute(arguments: Array<String>) : Int {
-        return when (val parsed = parser.parse(arguments)) {
-            is CommandParser.ParseResult.Error -> parsed.exitCode
-            is CommandParser.ParseResult.Ok -> {
-                val useCase = ResourceActionUseCase(
-                    authService,
-                    permissionManager,
-                    userRepository,
-                    resourceRepository
-                )
-                useCase.execute(parsed.command)
-            }
+    fun execute(args: Array<String>) : Int {
+        return when (val result = parser.parse(args)) {
+            is CommandParser.ParseResult.Error -> result.exitCode
+            is CommandParser.ParseResult.Ok -> useCase.execute(result.command)
         }
 }
 }

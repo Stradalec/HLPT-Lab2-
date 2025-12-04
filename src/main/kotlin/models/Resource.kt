@@ -1,4 +1,4 @@
-package models
+package com.HLPTLab7.ExplorerApp.models
 
 class Resource (
     val id: Int,

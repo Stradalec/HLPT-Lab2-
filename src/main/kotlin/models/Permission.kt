@@ -1,4 +1,4 @@
-package models
+package com.HLPTLab7.ExplorerApp.models
 
 data class Permission(
     val userId: Int,

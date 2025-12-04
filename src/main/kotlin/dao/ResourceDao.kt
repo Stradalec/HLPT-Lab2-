@@ -1,9 +1,11 @@
-package dao
-import models.Resource
-import java.sql.Connection
-import database.*
+package com.HLPTLab7.ExplorerApp.dao
+import com.HLPTLab7.ExplorerApp.models.Resource
+import com.HLPTLab7.ExplorerApp.database.*
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import org.springframework.stereotype.Repository
+import java.sql.Connection
+@Repository
 class ResourceDao {
     fun findById(connection: Connection, id: Int): Resource? {
         val sql = "SELECT id, name, maxVolume, parentId FROM resources WHERE id = ?"

@@ -1,6 +1,6 @@
-package interfaces
+package com.HLPTLab7.ExplorerApp.interfaces
 
-import models.User
+import com.HLPTLab7.ExplorerApp.models.User
 interface IUserRepository {
     fun findByLogin(login: String): User?
     fun findById(id: Int): User?

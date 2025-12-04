@@ -1,10 +1,11 @@
-package handlers
+package com.HLPTLab7.ExplorerApp.handlers
 
-import interfaces.*
-import models.*
-import enumerators.*
+import com.HLPTLab7.ExplorerApp.interfaces.*
+import com.HLPTLab7.ExplorerApp.models.*
+import com.HLPTLab7.ExplorerApp.enumerators.*
 import kotlinx.cli.*
-
+import org.springframework.stereotype.Service
+@Service
 class CommandParser {
     sealed class ParseResult {
         data class Ok(val command: Command) : ParseResult()

@@ -1,6 +1,6 @@
-package handlers
+package com.HLPTLab7.ExplorerApp.handlers
 
-import enumerators.*
+import com.HLPTLab7.ExplorerApp.enumerators.*
 
 data class Command(
     val login: String,

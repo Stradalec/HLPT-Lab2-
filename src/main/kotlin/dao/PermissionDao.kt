@@ -1,8 +1,10 @@
-package dao
-import models.Permission
+package com.HLPTLab7.ExplorerApp.dao
+import com.HLPTLab7.ExplorerApp.models.Permission
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
+import org.springframework.stereotype.Repository
+@Repository
 class PermissionDao {
     fun findByUserAndResource(connection: Connection, userId: Int, resourceId: Int): Permission? {
         val sql = "SELECT userId, resourceId, availableActions FROM permissions WHERE userId = ? AND resourceId = ?"

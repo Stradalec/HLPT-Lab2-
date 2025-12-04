@@ -1,4 +1,4 @@
-package enumerators
+package com.HLPTLab7.ExplorerApp.enumerators
 
 enum class ExitCode(val code: Int) {
     SUCCESS(0),

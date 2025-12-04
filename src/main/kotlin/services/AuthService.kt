@@ -1,9 +1,11 @@
-package models
-import interfaces.IAuthService
+package com.HLPTLab7.ExplorerApp.models
+import com.HLPTLab7.ExplorerApp.interfaces.IAuthService
 import kotlin.system.exitProcess
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
-import enumerators.ExitCode
+import com.HLPTLab7.ExplorerApp.enumerators.ExitCode
+import org.springframework.stereotype.Service
+@Service
 class AuthService : IAuthService {
     override fun authorization(user: User?, password: String): Int {
         if (user == null) {

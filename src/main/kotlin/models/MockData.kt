@@ -1,4 +1,4 @@
-package models
+/* package models
 import repositories.*
 
 fun createMockData():  Triple<UserRepository, ResourceRepository, PermissionRepository> {
@@ -24,4 +24,4 @@ fun createMockData():  Triple<UserRepository, ResourceRepository, PermissionRepo
     permissionRepo.grant(Permission(alice.id, 3, "R--")) 
     permissionRepo.grant(Permission(alice.id, 4, "R--")) 
     return Triple(userRepository, resourceRepo, permissionRepo)
-}
+} */

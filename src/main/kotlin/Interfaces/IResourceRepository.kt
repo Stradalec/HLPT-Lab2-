@@ -1,5 +1,5 @@
-package interfaces
-import models.Resource
+package com.HLPTLab7.ExplorerApp.interfaces
+import com.HLPTLab7.ExplorerApp.models.Resource
 
 interface IResourceRepository {
     fun findById(id: Int): Resource?

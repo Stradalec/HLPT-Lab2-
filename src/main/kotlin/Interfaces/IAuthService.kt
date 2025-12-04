@@ -1,5 +1,5 @@
-package interfaces
-import models.User
+package com.HLPTLab7.ExplorerApp.interfaces
+import com.HLPTLab7.ExplorerApp.models.User
 
 interface IAuthService {
     fun authorization(user: User?, password: String): Int

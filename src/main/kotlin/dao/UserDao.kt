@@ -1,9 +1,10 @@
-package dao
-import models.User
+package com.HLPTLab7.ExplorerApp.dao
+import com.HLPTLab7.ExplorerApp.models.User
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
-
+import org.springframework.stereotype.Repository
+@Repository 
 class UserDao {
     fun findByLogin(connection: Connection, login: String): User? {
         val sql = "SELECT id, login, salt, hash FROM users WHERE login = ?"
