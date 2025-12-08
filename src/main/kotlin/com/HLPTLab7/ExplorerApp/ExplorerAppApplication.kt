@@ -26,14 +26,17 @@ class ExplorerAppApplication(private val commandHandler: CommandHandler) : Comma
         }
         
         try {
-            var result = commandHandler.execute(args)
-            logger.info(result.toString());
+            var result = commandHandler.execute(args.mapNotNull { it }.toTypedArray())
+            logger.info("Выполнение завершено с кодом: " + result)
             exitProcess(result)
-        } catch (e: DatabaseConnectionException) {
+        } catch (exception: DatabaseConnectionException) {
+            logger.error("Ошибка подключения к базе данных", exception)
             exitProcess(ExitCode.ERROR_DATABASE_CONNECTION.code)
-        } catch (e: SQLException) {
+        } catch (exception: SQLException) {
+            logger.error("Ошибка запроса SQL", exception)
             exitProcess(ExitCode.ERROR_SQL_REQUEST.code)
-        } catch (e: Exception) {
+        } catch (exception: Exception) {
+            logger.error("Неизвестная ошибка", exception)
             exitProcess(ExitCode.HELP.code)
         }
     }
