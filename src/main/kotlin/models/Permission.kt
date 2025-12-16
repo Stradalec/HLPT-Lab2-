@@ -1,7 +1,12 @@
 package com.HLPTLab7.ExplorerApp.models
+import jakarta.persistence.*
 
-data class Permission(
-    val userId: Int,
-    val resourceId: Int,
+@Entity
+@Table(name = "permissions")
+class Permission(
+    @EmbeddedId
+    val id: PermissionId = PermissionId(),
+
+    @Column(name = "available_actions", nullable = false)
     val availableActions: String
 )

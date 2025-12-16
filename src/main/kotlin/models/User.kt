@@ -1,2 +1,14 @@
 package com.HLPTLab7.ExplorerApp.models
-data class User(val id: Int, val login: String, val salt: String, val hash: String)
+import jakarta.persistence.*
+@Entity
+@Table(name = "users")
+class User(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Int,
+    @Column(nullable = false, unique = true) 
+    val login: String,
+    @Column(nullable = false) 
+    val salt: String,
+    @Column(nullable = false) 
+    val hash: String)
