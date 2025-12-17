@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets
 import kotlin.system.exitProcess
 import com.HLPTLab7.ExplorerApp.repositories.*
 import java.sql.SQLException
-import com.HLPTLab7.ExplorerApp.database.DatabaseConnectionException
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.boot.CommandLineRunner
@@ -29,9 +28,6 @@ class ExplorerAppApplication(private val commandHandler: CommandHandler) : Comma
             var result = commandHandler.execute(args.mapNotNull { it }.toTypedArray())
             logger.info("Выполнение завершено с кодом: " + result)
             exitProcess(result)
-        } catch (exception: DatabaseConnectionException) {
-            logger.error("Ошибка подключения к базе данных", exception)
-            exitProcess(ExitCode.ERROR_DATABASE_CONNECTION.code)
         } catch (exception: SQLException) {
             logger.error("Ошибка запроса SQL", exception)
             exitProcess(ExitCode.ERROR_SQL_REQUEST.code)

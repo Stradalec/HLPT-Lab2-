@@ -5,10 +5,10 @@ import jakarta.persistence.*
 class Resource (
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int,
+    val id: Int = 0,
 
     @Column(nullable = false)
-    val name: String,
+    val name: String = "",
 
     @Column(name = "max_volume", nullable = false)
     val maxVolume: Int = 10,

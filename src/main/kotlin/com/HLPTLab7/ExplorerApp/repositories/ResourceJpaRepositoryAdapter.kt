@@ -28,19 +28,24 @@ class ResourceJpaRepositoryAdapter(
         return false
     }
 override fun findByPath(path: String): Resource? {
-    val parts = path.trim('/').split('/')
-    if (parts.isEmpty()) return null
+    val parts = path.trim('.').split('.')
+    if (path.isEmpty()) return null
 
-    var current = jpaRepository.findByName(parts[0])?.takeIf { it.parentId == null }
-    if (current == null) return null
+    val root = jpaRepository.findAll().find { it.parentId == null } ?: return null
 
-    for (index in 1 until parts.size) {
-        val nextName = parts[index]
-        val parentId = current?.parentId ?: return null
-        current = jpaRepository.findByParentId(parentId)
-            .find { it.name == nextName }
-            ?: return null
+    var current: Resource? = null
+
+    for (part in parts) {
+        current = when {
+            current == null -> {
+                jpaRepository.findByParentId(root.id).find { it.name == part }
+            }
+            else -> {
+                jpaRepository.findByParentId(current.id).find { it.name == part }
+            }
+        } ?: return null
     }
+
     return current
 }
 }

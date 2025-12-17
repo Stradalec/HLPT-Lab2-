@@ -8,5 +8,5 @@ class Permission(
     val id: PermissionId = PermissionId(),
 
     @Column(name = "available_actions", nullable = false)
-    val availableActions: String
+    val availableActions: String = ""
 )

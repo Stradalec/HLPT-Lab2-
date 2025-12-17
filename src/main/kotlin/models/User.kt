@@ -5,10 +5,10 @@ import jakarta.persistence.*
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Int,
+    val id: Int = 0,
     @Column(nullable = false, unique = true) 
-    val login: String,
+    val login: String = "",
     @Column(nullable = false) 
-    val salt: String,
+    val salt: String = "",
     @Column(nullable = false) 
-    val hash: String)
+    val hash: String = "")
