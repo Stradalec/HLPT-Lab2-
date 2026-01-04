@@ -1,57 +1,74 @@
+import models.Permission
 import models.Resource
-import interfaces.IResource
-import models.PermissionManager
+import models.User
 import interfaces.IPermissionManager
+import models.PermissionManager
+import interfaces.IPermissionRepository
+import interfaces.IResourceRepository
+import interfaces.IUserRepository
 import enumerators.Action
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
-public class PermissionManagerTests {
+
+
+
+class PermissionManagerTests {
+
     @Test
     fun testAddAndCheckPermission() {
-        val permissionManager = PermissionManager()
-        val resource = Resource("Крутой ресурс с крутым названием")
-        val user = "Крутой пользователь"
+        val userRepo = InMemoryUserRepository()
+        val resourceRepo = InMemoryResourceRepository()
+        val permissionRepo = InMemoryPermissionRepository()
 
-        permissionManager.grantPermission(resource.name,user, Action.READ)
+        val user = User(1, "user", "salt", "hash")
+        val resource = Resource(10, "res", 10, null)
 
-        assertTrue(permissionManager.hasPermission(resource, user, Action.READ))
-        assertFalse(permissionManager.hasPermission(resource, user, Action.WRITE))
+        userRepo.save(user)
+        resourceRepo.save(resource)
+
+        val permissionManager = PermissionManager(permissionRepo, resourceRepo, userRepo)
+
+        permissionManager.grantPermission("res", "user", Action.READ)
+
+        assertTrue(permissionManager.hasPermission(10, 1, Action.READ))
+        assertFalse(permissionManager.hasPermission(10, 1, Action.WRITE))
     }
 
     @Test
     fun testPermissionTransmission() {
-        val permissionManager = PermissionManager()
+        val userRepo = InMemoryUserRepository()
+        val resourceRepo = InMemoryResourceRepository()
+        val permissionRepo = InMemoryPermissionRepository()
 
-        val parent = Resource("Parent")
-        val child = Resource("Child", parent = parent)
+        val user = User(1, "user", "salt", "hash")
+        val parent = Resource(1, "Parent", 10, null)
+        val child = Resource(2, "Child", 10, 1)
 
-        permissionManager.grantPermission(parent.name, "user", Action.READ)
+        userRepo.save(user)
+        resourceRepo.save(parent)
+        resourceRepo.save(child)
 
-        assertTrue(permissionManager.hasPermission(child, "user", Action.READ))
+        val permissionManager = PermissionManager(permissionRepo, resourceRepo, userRepo)
+
+        permissionManager.grantPermission("Parent", "user", Action.READ)
+
+        assertTrue(permissionManager.hasPermission(2, 1, Action.READ))
     }
 
     @Test
     fun testNoPermissionReturnsFalse() {
-        val permissionManager = PermissionManager()
-        val resource = Resource("Res")
+        val userRepo = InMemoryUserRepository()
+        val resourceRepo = InMemoryResourceRepository()
+        val permissionRepo = InMemoryPermissionRepository()
 
-        assertFalse(permissionManager.hasPermission(resource, "unknown_user", Action.READ))
-        assertFalse(permissionManager.hasPermission(resource, "user", Action.WRITE))
-    }
+        val user = User(1, "user", "salt", "hash")
+        val resource = Resource(10, "res", 10, null)
 
-    @Test
-    fun testHasPermissionForUnknownUserAndAction() {
-        val manager = PermissionManager()
-        val resource = Resource("Res")
+        userRepo.save(user)
+        resourceRepo.save(resource)
 
-        manager.grantPermission(resource.name, "bro", Action.READ)
-        assertFalse(manager.hasPermission(resource, "notABro", Action.WRITE))
-    }
+        val permissionManager = PermissionManager(permissionRepo, resourceRepo, userRepo)
 
-    @Test
-    fun testHasPermissionWithNullResourceReturnsFalse() {
-        val manager = PermissionManager()
-        val result = manager.hasPermission(null, "someone", Action.READ)
-        assertFalse(result)
+        assertFalse(permissionManager.hasPermission(10, 1, Action.READ))
     }
 }

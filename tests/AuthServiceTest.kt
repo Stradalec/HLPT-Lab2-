@@ -4,7 +4,7 @@ import kotlin.system.exitProcess
 import java.security.MessageDigest
 import java.nio.charset.StandardCharsets
 import enumerators.ExitCode
-import models.UserData
+import models.User
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
