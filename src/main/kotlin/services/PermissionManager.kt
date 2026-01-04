@@ -13,21 +13,20 @@ class PermissionManager (private val permissionRepo: IPermissionRepository, priv
         val user = userRepo.findByLogin(userLogin) ?: return
         val userPerms = permissionRepo.findByUserAndResource(user!!.id, resource.id)
         val actions = updateActions(userPerms?.availableActions ?: "---", action)
-        permissionRepo.grant(Permission(user.id, resource.id, actions))
+        permissionRepo.grant(Permission(id = PermissionId(userId = user.id, resourceId = resource.id), actions))
     }
 
     override fun hasPermission(resourceId: Int, userId: Int, action: Action): Boolean {
-        val resource = resourceRepo.findById(resourceId) ?: return false
-        val foundPermission = permissionRepo.findByUserAndResource(userId, resourceId)
-        if (foundPermission != null && hasAction(foundPermission.availableActions, action)) {
-            return true
-        }
-
-
-        return resource.parentId?.let { parentId ->
-            hasPermission(parentId, userId, action)
-        } ?: false
+    val resource = resourceRepo.findById(resourceId) ?: return false
+    val foundPermission = permissionRepo.findByUserAndResource(userId, resourceId)
+    if (foundPermission != null && hasAction(foundPermission.availableActions, action)) {
+        return true
     }
+
+    return resource.parentId?.let { parentId ->
+        hasPermission(parentId, userId, action)
+    } ?: false
+}
 
     private fun hasAction(available: String, action: Action): Boolean = when (action) {
         Action.READ -> available.getOrNull(0) == 'R'
