@@ -1,4 +1,4 @@
-/* package models
+/* package com.HLPTLab7.ExplorerApp.entities.models
 import repositories.*
 
 fun createMockData():  Triple<UserRepository, ResourceRepository, PermissionRepository> {

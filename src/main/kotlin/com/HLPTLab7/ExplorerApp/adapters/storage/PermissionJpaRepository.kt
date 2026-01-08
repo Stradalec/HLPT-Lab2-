@@ -1,4 +1,4 @@
-package com.HLPTLab7.ExplorerApp.repositories
+package com.HLPTLab7.ExplorerApp.adapters.storage
 
 import com.HLPTLab7.ExplorerApp.interfaces.IPermissionRepository
 import com.HLPTLab7.ExplorerApp.models.Permission
